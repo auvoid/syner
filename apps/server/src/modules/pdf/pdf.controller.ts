@@ -14,7 +14,7 @@ import { P12Signer } from '@signpdf/signer-p12';
 import { readFile, writeFile } from 'fs/promises';
 import { plainAddPlaceholder } from '@signpdf/placeholder-plain';
 import signpdf from '@signpdf/signpdf';
-import path from 'path';
+import { join } from 'path';
 
 @Controller('pdf')
 export class PdfController {
@@ -56,13 +56,19 @@ export class PdfController {
       signFile: Express.Multer.File;
     },
   ) {
+    console.log(join(__dirname, '../../../uploads'));
     console.log(files.pdfFile, files.signFile);
     if (!files.pdfFile || !files.signFile) {
       throw new Error('Both PDF and P12 key files are required');
     }
-
-    const pdfBuffer = await readFile(files.pdfFile.path);
-    const signer = new P12Signer(await readFile(files.signFile.path));
+    const pdfBuffer = await readFile(
+      join(__dirname, '../../../uploads', files.pdfFile.filename),
+    );
+    const signer = new P12Signer(
+      await readFile(
+        join(__dirname, '../../../uploads', files.signFile.filename),
+      ),
+    );
     const pdfWithPlaceholder = plainAddPlaceholder({
       pdfBuffer,
       reason: 'The user is declaring consent.',
@@ -72,7 +78,7 @@ export class PdfController {
     });
 
     const signedPdf = await signpdf.sign(pdfWithPlaceholder, signer);
-    const signedPdfPath = path.join('./uploads', `${uuidv4()}-signed.pdf`);
+    const signedPdfPath = join('./uploads', `${uuidv4()}-signed.pdf`);
     await writeFile(signedPdfPath, signedPdf);
 
     return {
