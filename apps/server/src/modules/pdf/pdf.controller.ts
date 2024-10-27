@@ -21,11 +21,6 @@ import path from 'path';
 export class PdfController {
   constructor() {}
 
-  @Get()
-  async helloWorld() {
-    return 'Hello';
-  }
-
   @Post()
   @UseInterceptors(
     FilesInterceptor('files', 2, {
