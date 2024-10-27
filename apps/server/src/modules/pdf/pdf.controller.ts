@@ -4,7 +4,7 @@ import {
   MaxFileSizeValidator,
   ParseFilePipe,
   Post,
-  UploadedFile,
+  UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
@@ -47,31 +47,18 @@ export class PdfController {
     ),
   )
   async signPdf(
-    @UploadedFile(
-      new ParseFilePipe({
-        validators: [
-          new MaxFileSizeValidator({ maxSize: 4096 * 4096 }),
-          new FileTypeValidator({ fileType: 'application/pdf' }),
-        ],
-      }),
-    )
-    pdfFile: Express.Multer.File,
-    @UploadedFile(
-      new ParseFilePipe({
-        validators: [
-          new MaxFileSizeValidator({ maxSize: 4096 * 4096 }),
-          new FileTypeValidator({ fileType: 'application/x-pkcs12' }),
-        ],
-      }),
-    )
-    p12File: Express.Multer.File,
+    @UploadedFiles()
+    files: {
+      pdfFile: Express.Multer.File;
+      p12File: Express.Multer.File;
+    },
   ) {
-    if (!pdfFile || !p12File) {
+    if (!files.pdfFile || !files.p12File) {
       throw new Error('Both PDF and P12 key files are required');
     }
 
-    const pdfBuffer = await readFile(pdfFile.path);
-    const signer = new P12Signer(await readFile(p12File.path));
+    const pdfBuffer = await readFile(files.pdfFile.path);
+    const signer = new P12Signer(await readFile(files.p12File.path));
     const pdfWithPlaceholder = plainAddPlaceholder({
       pdfBuffer,
       reason: 'The user is declaring consent.',
@@ -86,8 +73,8 @@ export class PdfController {
 
     return {
       message: 'Files uploaded and signed successfully',
-      pdfFilePath: pdfFile.path,
-      p12FilePath: p12File.path,
+      pdfFilePath: files.pdfFile.path,
+      p12FilePath: files.p12File.path,
       signedPdfPath,
     };
   }
