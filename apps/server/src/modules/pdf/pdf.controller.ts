@@ -4,10 +4,10 @@ import {
   MaxFileSizeValidator,
   ParseFilePipe,
   Post,
-  UploadedFiles,
+  UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { v4 as uuidv4 } from 'uuid';
 import { P12Signer } from '@signpdf/signer-p12';
@@ -22,58 +22,45 @@ export class PdfController {
 
   @Post()
   @UseInterceptors(
-    FileInterceptor('pdfFile', {
-      storage: diskStorage({
-        destination: './uploads',
-        filename: (_, file, callback) => {
-          const uniqueSuffix = uuidv4();
-          const fileExtension = file.originalname.split('.').pop();
-          callback(null, `${uniqueSuffix}.${fileExtension}`);
+    FileFieldsInterceptor(
+      [
+        { name: 'pdfFile', maxCount: 1 },
+        { name: 'p12File', maxCount: 1 },
+      ],
+      {
+        storage: diskStorage({
+          destination: './uploads',
+          filename: (_, file, callback) => {
+            const uniqueSuffix = uuidv4();
+            const fileExtension = file.originalname.split('.').pop();
+            callback(null, `${uniqueSuffix}.${fileExtension}`);
+          },
+        }),
+        fileFilter: (_, file, callback) => {
+          if (file.mimetype === 'application/pdf') {
+            callback(null, true);
+          } else {
+            callback(null, false);
+          }
         },
-      }),
-      fileFilter: (_, file, callback) => {
-        if (file.mimetype === 'application/pdf') {
-          callback(null, true);
-        } else {
-          callback(null, false);
-        }
       },
-    }),
-  )
-  @UseInterceptors(
-    FileInterceptor('p12File', {
-      storage: diskStorage({
-        destination: './uploads',
-        filename: (_, file, callback) => {
-          const uniqueSuffix = uuidv4();
-          const fileExtension = file.originalname.split('.').pop();
-          callback(null, `${uniqueSuffix}.${fileExtension}`);
-        },
-      }),
-      fileFilter: (_, file, callback) => {
-        if (file.mimetype === 'application/x-pkcs12') {
-          callback(null, true);
-        } else {
-          callback(null, false);
-        }
-      },
-    }),
+    ),
   )
   async signPdf(
-    @UploadedFiles(
+    @UploadedFile(
       new ParseFilePipe({
         validators: [
           new MaxFileSizeValidator({ maxSize: 4096 * 4096 }),
-          new FileTypeValidator({ fileType: 'pdf' }),
+          new FileTypeValidator({ fileType: 'application/pdf' }),
         ],
       }),
     )
     pdfFile: Express.Multer.File,
-    @UploadedFiles(
+    @UploadedFile(
       new ParseFilePipe({
         validators: [
           new MaxFileSizeValidator({ maxSize: 4096 * 4096 }),
-          new FileTypeValidator({ fileType: 'p12' }),
+          new FileTypeValidator({ fileType: 'application/x-pkcs12' }),
         ],
       }),
     )
@@ -82,6 +69,7 @@ export class PdfController {
     if (!pdfFile || !p12File) {
       throw new Error('Both PDF and P12 key files are required');
     }
+
     const pdfBuffer = await readFile(pdfFile.path);
     const signer = new P12Signer(await readFile(p12File.path));
     const pdfWithPlaceholder = plainAddPlaceholder({
@@ -97,9 +85,10 @@ export class PdfController {
     await writeFile(signedPdfPath, signedPdf);
 
     return {
-      message: 'Files uploaded successfully',
+      message: 'Files uploaded and signed successfully',
       pdfFilePath: pdfFile.path,
       p12FilePath: p12File.path,
+      signedPdfPath,
     };
   }
 }
