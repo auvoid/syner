@@ -25,7 +25,7 @@ export class PdfController {
     FileFieldsInterceptor(
       [
         { name: 'pdfFile', maxCount: 1 },
-        { name: 'p12File', maxCount: 1 },
+        { name: 'signFile', maxCount: 1 },
       ],
       {
         storage: diskStorage({
@@ -37,7 +37,10 @@ export class PdfController {
           },
         }),
         fileFilter: (_, file, callback) => {
-          if (file.mimetype === 'application/pdf') {
+          if (
+            file.mimetype === 'application/pdf' ||
+            file.mimetype === 'application/x-pkcs12'
+          ) {
             callback(null, true);
           } else {
             callback(null, false);
@@ -50,15 +53,16 @@ export class PdfController {
     @UploadedFiles()
     files: {
       pdfFile: Express.Multer.File;
-      p12File: Express.Multer.File;
+      signFile: Express.Multer.File;
     },
   ) {
-    if (!files.pdfFile || !files.p12File) {
+    console.log(files.pdfFile, files.signFile);
+    if (!files.pdfFile || !files.signFile) {
       throw new Error('Both PDF and P12 key files are required');
     }
 
     const pdfBuffer = await readFile(files.pdfFile.path);
-    const signer = new P12Signer(await readFile(files.p12File.path));
+    const signer = new P12Signer(await readFile(files.signFile.path));
     const pdfWithPlaceholder = plainAddPlaceholder({
       pdfBuffer,
       reason: 'The user is declaring consent.',
@@ -74,7 +78,7 @@ export class PdfController {
     return {
       message: 'Files uploaded and signed successfully',
       pdfFilePath: files.pdfFile.path,
-      p12FilePath: files.p12File.path,
+      p12FilePath: files.signFile.path,
       signedPdfPath,
     };
   }
