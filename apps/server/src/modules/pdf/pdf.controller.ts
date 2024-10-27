@@ -1,14 +1,13 @@
 import {
   Controller,
   FileTypeValidator,
-  Get,
   MaxFileSizeValidator,
   ParseFilePipe,
   Post,
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
-import { FilesInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { v4 as uuidv4 } from 'uuid';
 import { P12Signer } from '@signpdf/signer-p12';
@@ -23,7 +22,7 @@ export class PdfController {
 
   @Post()
   @UseInterceptors(
-    FilesInterceptor('files', 2, {
+    FileInterceptor('pdfFile', {
       storage: diskStorage({
         destination: './uploads',
         filename: (_, file, callback) => {
@@ -33,10 +32,26 @@ export class PdfController {
         },
       }),
       fileFilter: (_, file, callback) => {
-        if (
-          file.mimetype === 'application/pdf' ||
-          file.mimetype === 'application/x-pkcs12'
-        ) {
+        if (file.mimetype === 'application/pdf') {
+          callback(null, true);
+        } else {
+          callback(null, false);
+        }
+      },
+    }),
+  )
+  @UseInterceptors(
+    FileInterceptor('p12File', {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (_, file, callback) => {
+          const uniqueSuffix = uuidv4();
+          const fileExtension = file.originalname.split('.').pop();
+          callback(null, `${uniqueSuffix}.${fileExtension}`);
+        },
+      }),
+      fileFilter: (_, file, callback) => {
+        if (file.mimetype === 'application/x-pkcs12') {
           callback(null, true);
         } else {
           callback(null, false);
@@ -49,17 +64,21 @@ export class PdfController {
       new ParseFilePipe({
         validators: [
           new MaxFileSizeValidator({ maxSize: 4096 * 4096 }),
-          new FileTypeValidator({ fileType: /(pdf|p12)$/ }), // Allow only PDF and P12 files
+          new FileTypeValidator({ fileType: 'pdf' }),
         ],
       }),
     )
-    files: Express.Multer.File[],
+    pdfFile: Express.Multer.File,
+    @UploadedFiles(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 4096 * 4096 }),
+          new FileTypeValidator({ fileType: 'p12' }),
+        ],
+      }),
+    )
+    p12File: Express.Multer.File,
   ) {
-    const pdfFile = files.find((file) => file.mimetype === 'application/pdf');
-    const p12File = files.find(
-      (file) => file.mimetype === 'application/x-pkcs12',
-    );
-
     if (!pdfFile || !p12File) {
       throw new Error('Both PDF and P12 key files are required');
     }
