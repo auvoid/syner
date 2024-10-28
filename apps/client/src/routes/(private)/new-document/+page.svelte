@@ -52,9 +52,9 @@
 
 <div class="flex gap-5">
 	{#if step === 0}
-		<Step1 bind:docName bind:signingParties bind:emailContent></Step1>
+		<Step1 bind:docName bind:signingParties bind:emailContent />
 	{:else if step === 1}
-		<Step2></Step2>
+		<Step2 />
 	{/if}
 	<DocPreviewBar>
 		<div class="flex flex-col h-full justify-between">

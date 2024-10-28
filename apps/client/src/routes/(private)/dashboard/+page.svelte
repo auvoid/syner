@@ -63,7 +63,7 @@
 	<div>
 		<DocPreviewBar>
 			{#if !selectedDoc}
-				<div class="flex flex-col h-full justify-between">
+				<div class="flex flex-col h-full justify-between mr-14">
 					<div class="flex flex-col gap-4">
 						<div class="flex items-center justify-between">
 							<h1 class="font-bold text-2xl dark:text-white">Document Name</h1>

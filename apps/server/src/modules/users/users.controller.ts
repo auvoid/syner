@@ -40,7 +40,9 @@ export class UsersController {
   @Serialize(UserDTO)
   async createNewUser(@Body() body: CreateUserDTO) {
     const { email, password } = body;
+    console.log(email);
     const _userExists = await this.userService.findOne({ email });
+    console.log(_userExists);
     if (_userExists) throw new BadRequestException('email already exists');
 
     const user = await this.userService.create({
