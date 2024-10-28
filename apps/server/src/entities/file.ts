@@ -1,6 +1,7 @@
-import { Column, Entity, ManyToMany, Relation } from 'typeorm';
+import { Column, Entity, ManyToMany, ManyToOne, Relation } from 'typeorm';
 import { BaseEntity } from './base-entity';
 import { Container } from './container';
+import { User } from './user';
 
 @Entity()
 export class File extends BaseEntity {
@@ -8,5 +9,8 @@ export class File extends BaseEntity {
   cid: string;
 
   @ManyToMany(() => Container, (e) => e.id)
-  belongsTo: Relation<Container[]>;
+  container: Relation<Container[]>;
+
+  @ManyToOne(() => User, (e) => e.files)
+  user: User;
 }

@@ -23,6 +23,7 @@ export class CurrentUserInterceptor implements NestInterceptor {
     next: CallHandler<any>,
   ): Promise<Observable<any>> {
     const req = context.switchToHttp().getRequest();
+
     const token = req.headers.authorization
       ? req.headers.authorization.split('Bearer ')[1]
       : null;

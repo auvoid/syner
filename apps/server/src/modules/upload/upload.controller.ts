@@ -8,10 +8,14 @@ import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { v4 as uuidv4 } from 'uuid';
 import { pinata } from '../../services/pinata.service';
+import { FilesService } from './files.service';
+import { IsAuthenticated } from 'src/guards/auth.guard';
+import { CurrentUser } from 'src/decorators';
+import { User } from 'src/entities';
 
 @Controller('upload')
 export class UploadController {
-  constructor() {}
+  constructor(private readonly filesService: FilesService) {}
 
   @Post('/pdf')
   @UseInterceptors(
@@ -26,7 +30,9 @@ export class UploadController {
       },
     }),
   )
+  @IsAuthenticated()
   async uploadPdf(
+    @CurrentUser() user: User,
     @UploadedFiles()
     files: {
       pdfFile: Express.Multer.File[];
@@ -42,9 +48,11 @@ export class UploadController {
     });
 
     const upload = await pinata.upload.file(file);
+    const uploadedFile = await this.filesService.create({
+      user,
+      cid: upload.cid,
+    });
 
-    return {
-      upload, // Return the PDF buffer directly
-    };
+    return uploadedFile;
   }
 }

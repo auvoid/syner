@@ -12,6 +12,8 @@ import {
 import { hash, verify } from 'argon2';
 import { BaseEntity } from './base-entity';
 import { Session } from './session';
+import { Container } from './container';
+import { File } from './file';
 
 @Entity()
 export class User extends BaseEntity {
@@ -29,6 +31,12 @@ export class User extends BaseEntity {
 
   @Column({ default: false, nullable: false })
   emailVerified: boolean;
+
+  @OneToMany(() => Container, (e) => e.ownedBy, { onDelete: 'CASCADE' })
+  documents: Container[];
+
+  @OneToMany(() => File, (e) => e.user, { onDelete: 'CASCADE' })
+  files: File[];
 
   private tempPassword: string;
   @AfterLoad()

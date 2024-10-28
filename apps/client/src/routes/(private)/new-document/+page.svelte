@@ -7,12 +7,19 @@
 	import Input from '$lib/components/ui/Input.svelte';
 	import { BarsOutline, ChevronLeftOutline } from 'flowbite-svelte-icons';
 	import { goto } from '$app/navigation';
+	import { apiClient } from '$lib/axios/axios';
+	import type { AxiosResponse } from 'axios';
+	import { token } from '$lib/store/store';
 
 	let step = 0;
 	let docName: string;
 	let signingParties: string[];
 	let emailContent: string;
 	let showSendEmailModal: boolean = false;
+
+	let pdfFile: FileList;
+	$: isPdfUploading = false;
+	let uploadedPdfId: string;
 
 	function handleGoBack() {
 		if (step === 0) {
@@ -29,6 +36,25 @@
 			showSendEmailModal = true;
 		}
 	}
+
+	const uploadPdf = async () => {
+		isPdfUploading = true;
+		const form = new FormData();
+		form.append('pdfFile', pdfFile[0]);
+		console.log(form);
+		const { data } = (await apiClient
+			.post('/upload/pdf', form, {
+				headers: {
+					Authorization: 'Bearer ' + $token
+				}
+			})
+			.catch((e) => {
+				isPdfUploading = false;
+				console.error(e);
+			})) as AxiosResponse<{ id: string }>;
+		uploadedPdfId = data.id;
+		console.log(uploadedPdfId);
+	};
 </script>
 
 <Modal title="Confirm Action" bind:open={showSendEmailModal}>
@@ -52,7 +78,14 @@
 
 <div class="flex gap-5">
 	{#if step === 0}
-		<Step1 bind:docName bind:signingParties bind:emailContent />
+		<Step1
+			{isPdfUploading}
+			uploadHandler={uploadPdf}
+			bind:pdfFile
+			bind:docName
+			bind:signingParties
+			bind:emailContent
+		/>
 	{:else if step === 1}
 		<Step2 />
 	{/if}

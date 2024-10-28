@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Input from '$lib/components/ui/Input.svelte';
+	import InputChip from '$lib/components/ui/InputChip.svelte';
 	import {
 		Card,
 		Dropzone,
@@ -26,6 +27,29 @@
 	export let docName: string;
 	export let signingParties: string[];
 	export let emailContent: string;
+	export let pdfFile: FileList;
+	export let isPdfUploading: boolean;
+
+	export let uploadHandler: () => void | Promise<void>;
+
+	let fileName: undefined | string;
+	const dropHandle = (event: DragEvent) => {
+		event.preventDefault();
+		if (event.dataTransfer?.items) {
+			fileName = [...event.dataTransfer.items][0].getAsFile()?.name;
+		}
+		uploadHandler();
+	};
+
+	const handleChange = (event: Event) => {
+		const useEvent = event as DragEvent;
+		if (useEvent.dataTransfer && useEvent.dataTransfer.items) {
+			fileName = [...useEvent.dataTransfer.items][0].getAsFile()?.name;
+		}
+		uploadHandler();
+	};
+
+	// apiClient.post('/upload/pdf', {});
 </script>
 
 <main class="w-full flex gap-5">
@@ -44,26 +68,42 @@
 						></Input>
 					</div>
 					<div class="w-full">
-						<Input
-							variant="email"
+						<InputChip
+							name="invitees"
 							label="Add Signing Parties"
-							helperText="Enter the emails of all the signing parties"
 							placeholder="name@example.com"
 							bind:value={signingParties}
-						></Input>
+						/>
 					</div>
 				</div>
 				<div class="flex gap-5 w-full">
 					<div class="w-full">
-						<Dropzone class="bg-gray-200" accept={'.pdf'}>
-							<UploadOutline size="xl"></UploadOutline>
-							<p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
-								<span class="font-semibold">Click to upload</span> or drag and drop
-							</p>
-							<p class="text-xs text-gray-500 dark:text-gray-400">
-								PDF Format Only (File Size: 30MB)
-							</p>
-						</Dropzone>
+						{#if !isPdfUploading}
+							<Dropzone
+								on:drop={dropHandle}
+								on:dragover={(event) => {
+									event.preventDefault();
+								}}
+								on:change={handleChange}
+								bind:files={pdfFile}
+								class="bg-gray-200"
+								accept={'.pdf'}
+							>
+								<UploadOutline size="xl"></UploadOutline>
+								{#if !pdfFile}
+									<p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
+										<span class="font-semibold">Click to upload</span> or drag and drop
+									</p>
+									<p class="text-xs text-gray-500 dark:text-gray-400">
+										PDF Format Only (File Size: 30MB)
+									</p>
+								{:else}
+									<p>{fileName}</p>
+								{/if}
+							</Dropzone>
+						{:else}
+							<p>Pdf is uploading...</p>
+						{/if}
 					</div>
 					<div class="w-full">
 						<div>
