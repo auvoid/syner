@@ -15,5 +15,5 @@ export class Signature extends BaseEntity {
 
   @ManyToOne(() => Container, (e) => e.id)
   @JoinColumn()
-  belongs_to: Relation<Container>;
+  belongsTo: Relation<Container>;
 }

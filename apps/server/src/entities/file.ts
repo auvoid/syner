@@ -11,5 +11,5 @@ export class File extends BaseEntity {
   hash: string;
 
   @ManyToMany(() => Container, (e) => e.id)
-  belongs_to: Relation<Container[]>;
+  belongsTo: Relation<Container[]>;
 }
