@@ -4,11 +4,8 @@ import { Container } from './container';
 
 @Entity()
 export class File extends BaseEntity {
-  @Column({ unique: true, nullable: false })
-  location: string;
-
   @Column({ nullable: false })
-  hash: string;
+  cid: string;
 
   @ManyToMany(() => Container, (e) => e.id)
   belongsTo: Relation<Container[]>;
