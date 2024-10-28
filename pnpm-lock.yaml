@@ -27,6 +27,9 @@ importers:
       '@neoconfetti/svelte':
         specifier: ^2.0.0
         version: 2.2.1
+      '@repo/dtos':
+        specifier: workspace:^
+        version: link:../../packages/dtos
       '@sveltejs/adapter-auto':
         specifier: ^3.0.0
         version: 3.3.0(@sveltejs/kit@2.7.2(@sveltejs/vite-plugin-svelte@4.0.0(svelte@5.0.5)(vite@5.4.10(@types/node@20.16.15)(terser@5.36.0)))(svelte@5.0.5)(vite@5.4.10(@types/node@20.16.15)(terser@5.36.0)))

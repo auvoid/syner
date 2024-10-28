@@ -32,6 +32,8 @@ export class CurrentUserInterceptor implements NestInterceptor {
       if (!payload || expired) return next.handle();
       if (payload.scope !== 'auth') return next.handle();
       req.user = await this.userService.findById(payload.userId);
+
+      console.log(payload);
       return next.handle();
     }
     return next.handle();
@@ -45,6 +47,8 @@ export class IsAuthenticatedInterceptor implements NestInterceptor {
     next: CallHandler<any>,
   ): Promise<Observable<any>> {
     const req = context.switchToHttp().getRequest();
+    console.log(req.headers.authorization);
+    console.log(req.user);
     if (!req.user) throw new UnauthorizedException();
     return next.handle();
   }

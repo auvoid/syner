@@ -9,7 +9,7 @@
 	import { goto } from '$app/navigation';
 	import { apiClient } from '$lib/axios/axios';
 	import type { AxiosResponse } from 'axios';
-	import { token } from '$lib/store/store';
+	import { addToast } from '../../store';
 
 	let step = 0;
 	let docName: string;
@@ -31,8 +31,13 @@
 
 	function handleContinue() {
 		if (step === 0) {
-			step++;
-		} else if (step === 1) {
+			if (!(signingParties.length > 0) || !(pdfFile.length > 0)) {
+				addToast({
+					type: 'error',
+					message: 'Fill signerfields and pdf pls.'
+				});
+				return;
+			}
 			showSendEmailModal = true;
 		}
 	}
@@ -42,18 +47,30 @@
 		const form = new FormData();
 		form.append('pdfFile', pdfFile[0]);
 		console.log(form);
-		const { data } = (await apiClient
-			.post('/upload/pdf', form, {
-				headers: {
-					Authorization: 'Bearer ' + $token
-				}
-			})
-			.catch((e) => {
-				isPdfUploading = false;
-				console.error(e);
-			})) as AxiosResponse<{ id: string }>;
+		const { data } = (await apiClient.post('/upload/pdf', form).catch((e) => {
+			isPdfUploading = false;
+			console.error(e);
+		})) as AxiosResponse<{ id: string }>;
+		isPdfUploading = false;
 		uploadedPdfId = data.id;
 		console.log(uploadedPdfId);
+	};
+
+	const handleSigningSubmit = async () => {
+		const { data } = (await apiClient
+			.post('/container', {
+				fileId: uploadedPdfId,
+				invitees: signingParties
+			})
+			.catch((e) => {
+				console.error(e);
+			})) as AxiosResponse<{
+			id: string;
+			invitees: string[];
+			files: Record<string, any>;
+			signatures: Record<string, any>;
+		}>;
+		console.log(data);
 	};
 </script>
 
@@ -71,7 +88,9 @@
 			{/each}
 		</div>
 		<div class="flex justify-end">
-			<Button color="light-yellow">Continue and Send Emails</Button>
+			<Button color="light-yellow" on:click={() => handleSigningSubmit()}
+				>Continue and Send Emails</Button
+			>
 		</div>
 	</div>
 </Modal>
@@ -152,9 +171,7 @@
 					<Button buttonClass="w-full" color="white"
 						>{step === 0 ? 'Save as Draft' : 'View Document'}</Button
 					>
-					<Button buttonClass="w-full" color="yellow" on:click={handleContinue}
-						>{step === 0 ? 'Continue to Edit Document' : 'Send'}</Button
-					>
+					<Button buttonClass="w-full" color="yellow" on:click={handleContinue}>Send</Button>
 				</div>
 			</div>
 		</div>

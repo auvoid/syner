@@ -13,8 +13,9 @@ import { ContainersService } from './container.service';
 import { IsAuthenticated } from '../../guards/auth.guard';
 import { User } from '../../entities/user';
 import { CurrentUser } from '../../decorators';
-import { CreateContainerDTO } from '@repo/dtos';
+import { CreateContainerDTO, ContainerDTO } from '@repo/dtos';
 import { FilesService } from '../upload/files.service';
+import { Serialize } from 'src/interceptors/serialize';
 
 @Controller('container')
 export class ContainersController {
@@ -23,7 +24,23 @@ export class ContainersController {
     private readonly filesService: FilesService,
   ) {}
 
+  @Get()
+  @IsAuthenticated()
+  async getAllContainers(@CurrentUser() user: User) {
+    const containers = await this.containersService.findMany(
+      {
+        ownedBy: { id: user.id },
+      },
+      {
+        files: true,
+        signatures: true,
+      },
+    );
+    return containers;
+  }
+
   @Post()
+  @Serialize(ContainerDTO)
   @IsAuthenticated()
   async createNewSignatureContainer(
     @CurrentUser() user: User,

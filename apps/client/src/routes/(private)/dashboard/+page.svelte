@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { apiClient } from '$lib/axios/axios';
 	import DocPreviewBar from '$lib/components/fragments/DocPreviewBar.svelte';
 	import Badge from '$lib/components/ui/Badge.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
@@ -20,12 +21,18 @@
 		DotsHorizontalOutline,
 		ExclamationCircleSolid
 	} from 'flowbite-svelte-icons';
+	import { onMount } from 'svelte';
 
 	let selectedDoc: boolean;
 	let docName: string;
 	let signingParties: string[];
 	let emailContent: string;
 	let isSigned: boolean;
+
+	onMount(async () => {
+		const { data } = await apiClient.get('/container');
+		console.log(data);
+	});
 </script>
 
 <main class="flex gap-5">
