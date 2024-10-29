@@ -1,6 +1,6 @@
 services:
-  client:
-    container_name: client
+  syner-client:
+    container_name: syner-client
     networks:
       - host-bridge
     build:
@@ -20,11 +20,11 @@ services:
         - action: rebuild
           path: ./apps/client/package.json
     depends_on:
-      - server
-  server:
+      - syner-server
+  syner-server:
     networks:
       - host-bridge
-    container_name: server
+    container_name: syner-server
     build:
       context: .
       dockerfile: ./docker/dev/Dockerfile.server
