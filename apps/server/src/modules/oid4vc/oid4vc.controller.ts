@@ -51,7 +51,6 @@ export class Oid4vcController {
     private siopOfferService: SiopOfferService,
     private containersService: ContainersService,
     private signatureService: SignatureService,
-    private sessionService: SessionsService,
   ) {}
 
   @Serialize(SiopOfferDTO)
@@ -91,20 +90,18 @@ export class Oid4vcController {
 
     const container = await this.containersService.findById(containerId);
 
-    console.log(state.split('::').slice(-1)[0]);
+    const email = state.split('::').slice(-1)[0];
 
     const alreadyExists = await this.signatureService.findMany({
-      email: state.split('::').slice(-1)[0],
+      email,
       container,
     });
-
-    console.log(alreadyExists);
 
     if (alreadyExists.length > 0) {
       throw new ConflictException('Document has already been signed');
     }
 
-    if (!container.invitees.includes(state.split('::').slice(-1)[0])) {
+    if (!container.invitees.includes(email)) {
       throw new ForbiddenException('You are not allowed to sign this document');
     }
 
