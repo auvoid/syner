@@ -16,12 +16,15 @@ import { CurrentUser } from '../../decorators';
 import { CreateContainerDTO, ContainerDTO } from '@repo/dtos';
 import { FilesService } from '../upload/files.service';
 import { Serialize } from 'src/interceptors/serialize';
+import { validateJsonWebToken } from '../../utils/jwt';
+import { EmailService } from '../email/email.service';
 
 @Controller('container')
 export class ContainersController {
   constructor(
     private readonly containersService: ContainersService,
     private readonly filesService: FilesService,
+    private readonly emailService: EmailService,
   ) {}
 
   @Get()
@@ -50,12 +53,43 @@ export class ContainersController {
     const file = await this.filesService.findById(fileId, { user: true });
     if (!file || !file.user || (!file && file.user.id !== user.id))
       throw new NotFoundException();
-    const container = this.containersService.create({
+    const container = await this.containersService.create({
+      name: body.name,
       invitees: body.invitees,
       files: [file],
       ownedBy: user,
     });
 
+    container.invitees.forEach(async (invitee) => {
+      await this.emailService.sendSignerInvite({
+        containerId: container.id,
+        email: invitee,
+      });
+    });
+
+    return container;
+  }
+
+  @Post('/external-signer')
+  async tokenToDoc(@Body() body: { token: string }) {
+    const { payload, expired } = validateJsonWebToken<{
+      containerId: string;
+      email: string;
+    } | null>(body.token);
+    if (expired) {
+      throw new Error('Token expired');
+    }
+    const container = await this.containersService.findById(
+      payload.containerId,
+      {
+        files: true,
+        signatures: true,
+        ownedBy: true,
+      },
+    );
+    if (!container.invitees.includes(payload.email)) {
+      throw new Error('You are not suppsed to be here');
+    }
     return container;
   }
 }

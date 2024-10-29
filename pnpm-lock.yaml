@@ -20,6 +20,9 @@ importers:
       axios:
         specifier: ^1.7.7
         version: 1.7.7
+      svelte-qrcode-action:
+        specifier: ^1.0.2
+        version: 1.0.2(svelte@5.0.5)
     devDependencies:
       '@fontsource/fira-mono':
         specifier: ^5.0.0
@@ -81,6 +84,9 @@ importers:
       mdsvex:
         specifier: ^0.11.2
         version: 0.11.2(svelte@5.0.5)
+      pinata:
+        specifier: ^1.7.2
+        version: 1.7.2
       prettier:
         specifier: ^3.3.2
         version: 3.3.3
@@ -150,6 +156,9 @@ importers:
       '@tanglelabs/iota-identity-adapter':
         specifier: 0.3.7-alpha.3
         version: 0.3.7-alpha.3
+      '@tanglelabs/jwk-identity-adapter':
+        specifier: ^0.1.3
+        version: 0.1.3
       '@tanglelabs/key-identity-adapter':
         specifier: 0.2.2
         version: 0.2.2
@@ -168,6 +177,9 @@ importers:
       '@tanglelabs/web-identity-adapter':
         specifier: ^0.3.0
         version: 0.3.0
+      '@trust/keyto':
+        specifier: ^1.0.1
+        version: 1.0.1
       '@types/dotenv':
         specifier: ^8.2.3
         version: 8.2.3
@@ -262,6 +274,9 @@ importers:
       '@types/uuid':
         specifier: ^10.0.0
         version: 10.0.0
+      '@types/ws':
+        specifier: ^8.5.12
+        version: 8.5.12
       '@typescript-eslint/eslint-plugin':
         specifier: ^8.0.0
         version: 8.11.0(@typescript-eslint/parser@8.11.0(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3)
@@ -1391,6 +1406,9 @@ packages:
   '@tanglelabs/iota-identity-adapter@0.3.7-alpha.3':
     resolution: {integrity: sha512-UDooo6L5EmrCCvvKJPI89mUNfhP2OF0XMx88PMw4QiSnjs6hKCpLymemW9qwKEcoy2KP9Zp4oh3oVv7DFu2KyA==}
 
+  '@tanglelabs/jwk-identity-adapter@0.1.3':
+    resolution: {integrity: sha512-7EWjfbeEYgU1z0Tq/IM/UOBMF41W8MkezzUZM3zooxZA9/m0N0Ww8jlLcEL66y3vIXgAmwEtl5FZ4JUpwT6pXw==}
+
   '@tanglelabs/key-identity-adapter@0.2.2':
     resolution: {integrity: sha512-MSpJj0T98p3z3mEU8YgJm+ZWW4GfJ2SQ3SBihinnkwNwhN02BOWTIEC9rKVS9McvB+vXEUNu6xfJzGrxeyfbyQ==}
 
@@ -1411,6 +1429,9 @@ packages:
 
   '@tanglelabs/web-identity-adapter@0.3.0':
     resolution: {integrity: sha512-DmosKml+MlyDRuu2yaryEldKG/XLfFaySUSQgKxzQ8qnSRHT2KNo7Z7TGurQVItXvDT2TKUFbkEH7b9hjcuH/A==}
+
+  '@trust/keyto@1.0.1':
+    resolution: {integrity: sha512-OXTmKkrnkwktCX86XA7eWs1TQ6u64enm0syzAfNhjigbuGLy5aLhbhRYWtjt4zzdG/irWudluheRZ9Ic9pCwsA==}
 
   '@tsconfig/node10@1.0.11':
     resolution: {integrity: sha512-DcRjDCujK/kCk/cUe8Xz8ZSpm8mS3mNNpta+jGCA6USEDfktlNvm1+IuZ9eTcDbNk41BHwpHHeW+N1lKCz4zOw==}
@@ -1436,6 +1457,9 @@ packages:
   '@types/babel__traverse@7.20.6':
     resolution: {integrity: sha512-r1bzfrm0tomOI8g1SzvCaQHo6Lcv6zu0EA+W2kHrt8dyrHQxGzBBL4kdkzIS+jBMV+EYcMAEAqXqYaLJq5rOZg==}
 
+  '@types/bn.js@5.1.6':
+    resolution: {integrity: sha512-Xh8vSwUeMKeYYrj3cX4lGQgFSF/N03r+tv4AiLl1SucqV+uTQpxRcnM8AkXKHwYP9ZPXOYXRr2KPXpVlIvqh9w==}
+
   '@types/body-parser@1.19.5':
     resolution: {integrity: sha512-fB3Zu92ucau0iQ0JMCFQE7b/dv8Ot07NI3KaZIkIUNXq82k4eBAqUaneXfleGY9JWskeS9y+u0nXMyspcuQrCg==}
 
@@ -1454,6 +1478,9 @@ packages:
   '@types/dotenv@8.2.3':
     resolution: {integrity: sha512-g2FXjlDX/cYuc5CiQvyU/6kkbP1JtmGzh0obW50zD7OKeILVL0NSpPWLXVfqoAGQjom2/SLLx9zHq0KXvD6mbw==}
     deprecated: This is a stub types definition. dotenv provides its own type definitions, so you do not need this installed.
+
+  '@types/elliptic@6.4.18':
+    resolution: {integrity: sha512-UseG6H5vjRiNpQvrhy4VF/JXdA3V/Fp5amvveaL+fs28BZ6xIKJBPnUPRlEaZpysD9MbpfaLi8lbl7PGUAkpWw==}
 
   '@types/eslint@9.6.1':
     resolution: {integrity: sha512-FXx2pKgId/WyYo2jXw63kk7/+TY7u7AziEJxJAnSFzHlqTAS3Ync6SvgYAN/k4/PQpnnVuzoMuVnByKK2qp0ag==}
@@ -1538,6 +1565,9 @@ packages:
 
   '@types/validator@13.12.2':
     resolution: {integrity: sha512-6SlHBzUW8Jhf3liqrGGXyTJSIFe4nqlJ5A5KaMZ2l/vbM3Wh3KSybots/wfWVzNLK4D1NZluDlSQIbIEPx6oyA==}
+
+  '@types/ws@8.5.12':
+    resolution: {integrity: sha512-3tPRkv1EtkDpzlgyKyI8pGsGZAGPEaXeu0DOj5DI25Ja91bdAYddYHbADRYVrZMRbfW+1l5YwXVDKohDJNQxkQ==}
 
   '@types/yargs-parser@21.0.3':
     resolution: {integrity: sha512-I4q9QU9MQv4oEOz4tAHJtNz1cwuLxn2F3xcc2iV5WdqLPpUnj30aUuxt1mAxYTG+oe8CZMV/+6rU4S4gRDzqtQ==}
@@ -1800,6 +1830,9 @@ packages:
 
   asap@2.0.6:
     resolution: {integrity: sha512-BSHWgDSAiKs50o2Re8ppvp3seVHXSRM44cdSsT9FfNEUUZLOGWVCsiWaRPWM1Znn+mqZ1OfVZ3z3DWEzSp7hRA==}
+
+  asn1.js@5.4.1:
+    resolution: {integrity: sha512-+I//4cYPccV8LdmBLiX8CYvf9Sp3vQsrqu2QNXRcrbiWvcx/UdlFiqUJJzxRQxgsZmvhXhn4cSKeSmoFjVdupA==}
 
   async@3.2.6:
     resolution: {integrity: sha512-htCUDlxyyCLMgaM3xXg0C0LW2xqfuQ6p05pCEIsXuyQ+a1koYKTuBMzRNwmybfLgvJDMd0r1LTn4+E0Ti6C2AA==}
@@ -2329,6 +2362,9 @@ packages:
 
   ecdsa-sig-formatter@1.0.11:
     resolution: {integrity: sha512-nagl3RYrbNv6kQkeJIpt6NJZy8twLB/2vtz6yN9Z4vRKHN4/QZJIEbqohALSgwKdnksuY3k5Addp5lg8sVoVcQ==}
+
+  eckey-utils@0.7.14:
+    resolution: {integrity: sha512-s/mENS+mMnJjDSydy0muBQQHMTWJ1nPe8EiphANZrf+lv/1u35aP9WvWHTWqCBJ21blNIurGF7UoLjtaOpoCFw==}
 
   ee-first@1.1.1:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
@@ -3244,6 +3280,9 @@ packages:
     resolution: {integrity: sha512-2yTgeWTWzMWkHu6Jp9NKgePDaYHbntiwvYuuJLbbN9vl7DC9DvXKOB2BC3ZZ92D3cvV/aflH0osDfwpHepQ53w==}
     hasBin: true
 
+  jose@5.9.6:
+    resolution: {integrity: sha512-AMlnetc9+CV9asI19zHmrgS/WYsWUwCn2R7RzlbJWD7F9eWYUTGyBmU9o6PxngtLGOiDGPRu+Uc4fhKzbpteZQ==}
+
   js-sha3@0.8.0:
     resolution: {integrity: sha512-gF1cRrHhIzNfToc802P800N8PpXS+evLLXfsVpowqmAFR9uwbi89WvXg2QspOmXL8QL86J4T1EpFu+yUkwJY3Q==}
 
@@ -4035,6 +4074,9 @@ packages:
   pure-rand@6.1.0:
     resolution: {integrity: sha512-bVWawvoZoBYpp6yIoQtQXHZjmz35RSVHnUOTefl8Vcjr8snTPY1wnpSPMWekcFwbxI6gtmT7rSYPFvz71ldiOA==}
 
+  qrcode-generator@1.4.4:
+    resolution: {integrity: sha512-HM7yY8O2ilqhmULxGMpcHSF1EhJJ9yBj8gvDEuZ6M+KGJ0YY2hKpnXvRD+hZPLrDVck3ExIGhmPtSdcjC+guuw==}
+
   qs@6.13.0:
     resolution: {integrity: sha512-+38qI9SOr8tfZ4QmJNplMUxqjbe7LKvvZgWdExBOmd+egZTtjLB67Gu0HRX3u/XOq7UU2Nx6nsjvS16Z9uwfpg==}
     engines: {node: '>=0.6'}
@@ -4346,6 +4388,9 @@ packages:
     resolution: {integrity: sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==}
     engines: {node: '>=8'}
 
+  styled-qr-code@1.0.0:
+    resolution: {integrity: sha512-Tye/Omr8VYUUUCiBE+GNMeJ1Tt0cIsDkLXnQGG6/Xxegyd1021wQKFAFvx/hjaTUrfwpmukWTZfXs3uc/XXN0g==}
+
   sucrase@3.35.0:
     resolution: {integrity: sha512-8EbVDiu9iN/nESwxeSxDKe0dunta1GOlHufmSSXxMD2z2/tMZpDMpvXQGsc+ajGo8y2uYUmixaSRUc/QPoQ0GA==}
     engines: {node: '>=16 || 14 >=14.17'}
@@ -4391,6 +4436,11 @@ packages:
     peerDependenciesMeta:
       svelte:
         optional: true
+
+  svelte-qrcode-action@1.0.2:
+    resolution: {integrity: sha512-15xwEcg+RCPXGjH762sm5XVJu+5DA1YtqVttow4tnzhdsYXAAMF4eyHRYtCf+dG4sBwWpPmX/5LKUP4QZ6KKCQ==}
+    peerDependencies:
+      svelte: ^4.0.0
 
   svelte@5.0.5:
     resolution: {integrity: sha512-f4WBlP5g8W6pEoDfx741lewMlemy+LIGpEqjGPWqnHVP92wqlQXl87U5O5Bi2tkSUrO95OxOoqwU8qlqiHmFKA==}
@@ -6265,6 +6315,26 @@ snapshots:
       - encoding
       - supports-color
 
+  '@tanglelabs/jwk-identity-adapter@0.1.3':
+    dependencies:
+      '@sphereon/did-resolver-jwk': 0.10.2-unstable.5
+      '@tanglelabs/ssimon': 0.7.1
+      '@types/elliptic': 6.4.18
+      base64url: 3.0.1
+      did-jwt: 7.4.7
+      did-jwt-vc: 3.2.15
+      did-resolver: 4.1.0
+      eckey-utils: 0.7.14
+      elliptic: 6.6.0
+      fix-esm-import-path: 1.10.1
+      jose: 5.9.6
+      jsonschema: 1.4.1
+      key-did-resolver: 3.0.0
+      pg: 8.13.0
+    transitivePeerDependencies:
+      - pg-native
+      - supports-color
+
   '@tanglelabs/key-identity-adapter@0.2.2':
     dependencies:
       '@tanglelabs/ssimon': 0.7.1
@@ -6363,6 +6433,12 @@ snapshots:
       - encoding
       - supports-color
 
+  '@trust/keyto@1.0.1':
+    dependencies:
+      asn1.js: 5.4.1
+      base64url: 3.0.1
+      elliptic: 6.6.0
+
   '@tsconfig/node10@1.0.11': {}
 
   '@tsconfig/node12@1.0.11': {}
@@ -6392,6 +6468,10 @@ snapshots:
     dependencies:
       '@babel/types': 7.25.9
 
+  '@types/bn.js@5.1.6':
+    dependencies:
+      '@types/node': 20.16.15
+
   '@types/body-parser@1.19.5':
     dependencies:
       '@types/connect': 3.4.38
@@ -6412,6 +6492,10 @@ snapshots:
   '@types/dotenv@8.2.3':
     dependencies:
       dotenv: 16.4.5
+
+  '@types/elliptic@6.4.18':
+    dependencies:
+      '@types/bn.js': 5.1.6
 
   '@types/eslint@9.6.1':
     dependencies:
@@ -6514,6 +6598,10 @@ snapshots:
   '@types/uuid@10.0.0': {}
 
   '@types/validator@13.12.2': {}
+
+  '@types/ws@8.5.12':
+    dependencies:
+      '@types/node': 20.16.15
 
   '@types/yargs-parser@21.0.3': {}
 
@@ -6832,6 +6920,13 @@ snapshots:
       is-shared-array-buffer: 1.0.3
 
   asap@2.0.6: {}
+
+  asn1.js@5.4.1:
+    dependencies:
+      bn.js: 4.12.0
+      inherits: 2.0.4
+      minimalistic-assert: 1.0.1
+      safer-buffer: 2.1.2
 
   async@3.2.6: {}
 
@@ -7409,6 +7504,8 @@ snapshots:
   ecdsa-sig-formatter@1.0.11:
     dependencies:
       safe-buffer: 5.2.1
+
+  eckey-utils@0.7.14: {}
 
   ee-first@1.1.1: {}
 
@@ -8682,6 +8779,8 @@ snapshots:
 
   jiti@1.21.6: {}
 
+  jose@5.9.6: {}
+
   js-sha3@0.8.0: {}
 
   js-tokens@4.0.0: {}
@@ -9383,6 +9482,8 @@ snapshots:
 
   pure-rand@6.1.0: {}
 
+  qrcode-generator@1.4.4: {}
+
   qs@6.13.0:
     dependencies:
       side-channel: 1.0.6
@@ -9737,6 +9838,10 @@ snapshots:
 
   strip-json-comments@3.1.1: {}
 
+  styled-qr-code@1.0.0:
+    dependencies:
+      qrcode-generator: 1.4.4
+
   sucrase@3.35.0:
     dependencies:
       '@jridgewell/gen-mapping': 0.3.5
@@ -9802,6 +9907,11 @@ snapshots:
       postcss: 8.4.47
       postcss-scss: 4.0.9(postcss@8.4.47)
     optionalDependencies:
+      svelte: 5.0.5
+
+  svelte-qrcode-action@1.0.2(svelte@5.0.5):
+    dependencies:
+      styled-qr-code: 1.0.0
       svelte: 5.0.5
 
   svelte@5.0.5:

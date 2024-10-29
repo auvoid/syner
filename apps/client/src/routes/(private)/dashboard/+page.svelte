@@ -3,6 +3,7 @@
 	import DocPreviewBar from '$lib/components/fragments/DocPreviewBar.svelte';
 	import Badge from '$lib/components/ui/Badge.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
+	import type { AxiosResponse } from 'axios';
 	import {
 		Card,
 		CloseButton,
@@ -28,10 +29,11 @@
 	let signingParties: string[];
 	let emailContent: string;
 	let isSigned: boolean;
+	let data: Record<string, any>[];
 
 	onMount(async () => {
-		const { data } = await apiClient.get('/container');
-		console.log(data);
+		const response = (await apiClient.get('/container')) as AxiosResponse;
+		data = response.data;
 	});
 </script>
 
@@ -46,23 +48,28 @@
 				<TableHeadCell></TableHeadCell>
 			</TableHead>
 			<TableBody>
-				<TableBodyRow>
-					<TableBodyCell>asdfasdf</TableBodyCell>
-					<TableBodyCell class="text-gray-500">asdfasdf</TableBodyCell>
-					<TableBodyCell>asdfasdf</TableBodyCell>
-					<TableBodyCell><Badge color="green">Completed</Badge></TableBodyCell>
-					<TableBodyCell>
-						<button
-							class="text-primary-500 hover:text-primary-600 dark:text-primary-400 dark:hover:text-primary-300"
+				{#each data as row (row.id)}
+					<TableBodyRow>
+						<TableBodyCell>{row.name}</TableBodyCell>
+						<TableBodyCell class="text-gray-500">{row.createdAt}</TableBodyCell>
+						<TableBodyCell>Not Completed</TableBodyCell>
+						<TableBodyCell
+							><Badge color="green">{row.invitees.length + 1 === row.signatures.length}</Badge
+							></TableBodyCell
 						>
-							<DotsHorizontalOutline class="h-5 w-5 text-gray-800 dark:text-white" />
-							<Dropdown class="py-2">
-								<DropdownItem>View Document</DropdownItem>
-								<DropdownItem>Add Signing Parties</DropdownItem>
-							</Dropdown>
-						</button>
-					</TableBodyCell>
-				</TableBodyRow>
+						<TableBodyCell>
+							<button
+								class="text-primary-500 hover:text-primary-600 dark:text-primary-400 dark:hover:text-primary-300"
+							>
+								<DotsHorizontalOutline class="h-5 w-5 text-gray-800 dark:text-white" />
+								<Dropdown class="py-2">
+									<DropdownItem>View Document</DropdownItem>
+									<DropdownItem>Add Signing Parties</DropdownItem>
+								</Dropdown>
+							</button>
+						</TableBodyCell>
+					</TableBodyRow>
+				{/each}
 			</TableBody>
 		</Table>
 	</Card>

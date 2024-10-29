@@ -1,6 +1,8 @@
 import {
   Controller,
+  Get,
   Post,
+  Query,
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
@@ -54,5 +56,14 @@ export class UploadController {
     });
 
     return uploadedFile;
+  }
+
+  @Get()
+  async getSignedUrl(@Query('cid') cid: string) {
+    console.log('cid', cid);
+    return await pinata.gateways.createSignedURL({
+      cid,
+      expires: 360,
+    });
   }
 }

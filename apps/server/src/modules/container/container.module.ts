@@ -4,10 +4,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Container } from '../../entities/container';
 import { ContainersService } from './container.service';
 import { UploadModule } from '../upload/upload.module';
+import { EmailModule } from '../email/email.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Container]), UploadModule],
+  imports: [TypeOrmModule.forFeature([Container]), UploadModule, EmailModule],
   providers: [ContainersService],
   controllers: [ContainersController],
+  exports: [ContainersService],
 })
 export class ContainerModule {}

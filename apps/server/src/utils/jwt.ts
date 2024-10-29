@@ -7,7 +7,9 @@ export const createJsonWebToken = (
   return sign(payload, process.env.SESSION_SECRET, { expiresIn });
 };
 
-export const validateJsonWebToken = <T = unknown>(token: string) => {
+export const validateJsonWebToken: <T = any>(
+  token: string,
+) => { payload: T | null; expired: boolean } = <T = any>(token: string) => {
   try {
     const payload = verify(token, process.env.SESSION_SECRET) as T;
     return { payload, expired: false };

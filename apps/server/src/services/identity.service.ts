@@ -48,6 +48,7 @@ export class IdentityService {
   private async build() {
     const { DidWebAdapter } = await import('@tanglelabs/web-identity-adapter');
     const { DidKeyAdapter } = await import('@tanglelabs/key-identity-adapter');
+    const { DidJwkAdapter } = await import('@tanglelabs/jwk-identity-adapter');
     const { IotaIdentityAdapter } = await import(
       '@tanglelabs/iota-identity-adapter'
     );
@@ -67,7 +68,12 @@ export class IdentityService {
           : false,
     });
     this.manager = await IdentityManager.build({
-      adapters: [DidWebAdapter, DidKeyAdapter, IotaIdentityAdapter],
+      adapters: [
+        DidWebAdapter,
+        DidKeyAdapter,
+        IotaIdentityAdapter,
+        DidJwkAdapter,
+      ],
       storage: storage,
     } as IdentityManagerOptions<any>);
   }
@@ -208,10 +214,9 @@ export class IdentityService {
     const identity = await this.newDid({
       alias,
       seed,
-      method: 'web',
+      method: 'key',
     }).catch(async (e) => {
       if (!e.message.includes('Alias already exists')) {
-        console.log(e);
         throw new Error('500::Unable to create identity');
       }
       const did = await this.getDid({ alias });

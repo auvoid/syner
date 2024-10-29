@@ -40,9 +40,7 @@ export class UsersController {
   @Serialize(UserDTO)
   async createNewUser(@Body() body: CreateUserDTO) {
     const { email, password } = body;
-    console.log(email);
     const _userExists = await this.userService.findOne({ email });
-    console.log(_userExists);
     if (_userExists) throw new BadRequestException('email already exists');
 
     const user = await this.userService.create({
@@ -55,6 +53,11 @@ export class UsersController {
   @Get()
   async getUser(@CurrentUser() user: User) {
     return user;
+  }
+
+  @Get('/session')
+  async getCurrentSession(@UserSession() session: Session) {
+    return session;
   }
 
   @Post('/login')
@@ -75,25 +78,6 @@ export class UsersController {
     @Body() body: Partial<User>,
   ) {
     return await this.userService.findByIdAndUpdate(user.id, body);
-  }
-
-  @Get('/logout')
-  @IsAuthenticated()
-  @ApiCookieAuth()
-  async logoutUser(
-    @Res({ passthrough: true }) res: Response,
-    @UserSession() session: Session,
-  ) {
-    res.cookie('accessToken', '', {
-      maxAge: 0,
-      httpOnly: true,
-    });
-    res.cookie('refreshToken', '', {
-      maxAge: 0,
-      httpOnly: true,
-    });
-    await this.sessionService.findByIdAndDelete(session.id);
-    return;
   }
 
   @Get('/')
@@ -124,7 +108,6 @@ export class UsersController {
     @CurrentUser() user: User,
   ) {
     const { payload, expired } = validateJsonWebToken(body.token);
-    console.log(payload, expired);
     if (expired) throw new BadRequestException(errors.users.EXPIRED_TOKEN);
     if (payload.scope !== 'email-verification')
       throw new BadRequestException(errors.users.INVALID_SCOPE);

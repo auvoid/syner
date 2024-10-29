@@ -23,11 +23,12 @@
 		PaperClipOutline,
 		UploadOutline
 	} from 'flowbite-svelte-icons';
+	import Button from '$lib/components/ui/Button.svelte';
 
 	export let docName: string;
 	export let signingParties: string[];
 	export let emailContent: string;
-	export let pdfFile: FileList;
+	export let pdfFile: FileList | undefined;
 	export let isPdfUploading: boolean;
 
 	export let uploadHandler: () => void | Promise<void>;
@@ -38,6 +39,7 @@
 		if (event.dataTransfer?.items) {
 			fileName = [...event.dataTransfer.items][0].getAsFile()?.name;
 		}
+		if (!pdfFile || !pdfFile[0]) return;
 		uploadHandler();
 	};
 
@@ -46,10 +48,11 @@
 		if (useEvent.dataTransfer && useEvent.dataTransfer.items) {
 			fileName = [...useEvent.dataTransfer.items][0].getAsFile()?.name;
 		}
+		if (!pdfFile || !pdfFile[0]) return;
 		uploadHandler();
 	};
 
-	// apiClient.post('/upload/pdf', {});
+	$: fileName = pdfFile && pdfFile[0].name;
 </script>
 
 <main class="w-full flex gap-5">
@@ -99,6 +102,11 @@
 									</p>
 								{:else}
 									<p>{fileName}</p>
+									<Button
+										on:click={() => {
+											pdfFile = undefined;
+										}}>Remove</Button
+									>
 								{/if}
 							</Dropzone>
 						{:else}

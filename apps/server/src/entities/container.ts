@@ -18,6 +18,9 @@ export class Container extends BaseEntity {
   @JoinTable()
   files: Relation<File[]>;
 
+  @Column({ default: 'Signable Document' })
+  name: string;
+
   @OneToMany(() => Signature, (e) => e.container, { onDelete: 'CASCADE' })
   signatures: Relation<Signature[]>;
 
