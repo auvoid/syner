@@ -10,7 +10,7 @@ export class Signature extends BaseEntity {
   @Column({ nullable: false })
   signature: string;
 
-  @ManyToOne(() => Container, (e) => e.id)
+  @ManyToOne(() => Container, (e) => e.signatures)
   @JoinColumn()
   container: Relation<Container>;
 }
