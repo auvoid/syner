@@ -114,7 +114,7 @@
 						{/if}
 					</div>
 					<div class="w-full">
-						<div>
+						<div class="future-disabled">
 							<Label for="input" class="text-font-bold text-md mb-1">Your Message</Label>
 							<Textarea
 								class="bg-gray-200"
