@@ -10,13 +10,16 @@
 		UserSettingsSolid,
 		LifeSaverSolid
 	} from 'flowbite-svelte-icons';
-
 	$: activeUrl = $page.url.pathname;
 
 	const handleLogout = async () => {
-		token.set(null);
-		goto('/login');
+		token.update(() => '');
+		window.location.pathname = '/login';
 	};
+
+	token.subscribe((t) => {
+		console.log('token set', t);
+	});
 </script>
 
 <Sidebar {activeUrl}>

@@ -6,7 +6,7 @@
 
 	// Create a function to get the URL of the first file
 	const getPdfUrl = () => {
-		if (docUrl !== '' && !docUrl) return docUrl;
+		if (!!docUrl) return docUrl;
 		if (pdfFile && pdfFile.length > 0) {
 			docUrl = URL.createObjectURL(pdfFile[0]);
 		}
@@ -27,7 +27,7 @@
 					<embed src={docUrl} height="100%" width="100%" type="application/pdf" />
 				</div>
 			{:else}
-				<p>Error occured getting pdf</p>
+				<p>Loading PDF...</p>
 			{/if}
 		</Card>
 	</div>

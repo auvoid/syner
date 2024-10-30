@@ -4,6 +4,7 @@
 	import { goto } from '$app/navigation';
 	import { apiClient } from '$lib/axios/axios';
 	import { token } from '$lib/store/store';
+	import { onMount } from 'svelte';
 
 	let email: string;
 	let password: string;
@@ -27,8 +28,6 @@
 					console.log(err);
 					alert(err.response.data.message);
 				});
-			// alert('Login Successful');
-			// goto('/');
 		}
 	}
 

@@ -10,4 +10,6 @@
 			await goto('/login');
 		}
 	});
+
+	$: console.log($token);
 </script>
