@@ -17,4 +17,4 @@ jobs:
           cp -r ./* ~/syner/
           cp ~/.env.syner ~/syner/.env
           cd ~/syner 
-          docker compose  --build --force-recreate -d
+          docker compose up --build --force-recreate -d
