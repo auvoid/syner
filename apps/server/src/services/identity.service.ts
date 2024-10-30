@@ -112,7 +112,10 @@ export class IdentityService {
     const kid = document.verificationMethod[0].id;
     const signer = await this.buildSigner(config.seed);
     const rp = new RelyingParty({
-      redirectUri: `${process.env.PUBLIC_BASE_URI}/oid4vc/auth`,
+      redirectUri: new URL(
+        '/api/oid4vc/auth',
+        process.env.PUBLIC_BASE_URI,
+      ).toString(),
       resolver,
       did: account.getDid(),
       kid,
