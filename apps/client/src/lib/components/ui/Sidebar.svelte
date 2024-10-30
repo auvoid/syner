@@ -31,7 +31,7 @@
 						/>
 					</svelte:fragment>
 				</SidebarItem>
-				<SidebarItem label="Notification">
+				<SidebarItem class="future-disabled" label="Notification">
 					<svelte:fragment slot="icon">
 						<InboxFullSolid
 							class="w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900"
@@ -49,14 +49,14 @@
 		</div>
 		<div>
 			<SidebarGroup border>
-				<SidebarItem label="Docs">
+				<SidebarItem class="future-disabled" label="Docs">
 					<svelte:fragment slot="icon">
 						<BookSolid
 							class="h-6 w-6 text-gray-500 transition duration-75 group-hover:text-gray-900"
 						/>
 					</svelte:fragment>
 				</SidebarItem>
-				<SidebarItem label="Settings">
+				<SidebarItem class="future-disabled" label="Settings">
 					<svelte:fragment slot="icon">
 						<UserSettingsSolid
 							class="h-6 w-6 text-gray-500 transition duration-75 group-hover:text-gray-900"
