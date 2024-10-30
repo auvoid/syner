@@ -10,11 +10,11 @@ on:
 jobs:
   build:
 
-    runs-on: difhac
+    runs-on: difhack
     steps:
     - uses: actions/checkout@v4
     - run: | 
         rm -rf ~/syner/*
         cp ./* ~/syner/
         cd ~/syner 
-        docker compose -f ./dev.docker-compose.yml up --build
+        docker compose -f ./dev.docker-compose.yml up --build -d
