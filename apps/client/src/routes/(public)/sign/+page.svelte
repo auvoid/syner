@@ -70,12 +70,12 @@
 			} = await apiClient.get('/users/session');
 			if (session.isValid) {
 				requestIdVerificaiton = false;
-			} else {
-				return;
 			}
 			const token = $page.url.searchParams.get('token');
 			const doc = await apiClient.post('/container/external-signer', { token });
 			docUrl = (await apiClient.get(`/upload?cid=${doc.data.files[0].cid}`)).data;
+			console.log('huh?');
+			if (!session.isValid) return;
 			const sigSession = await apiClient
 				.post(`/oid4vc/signature-session`, {
 					containerId: doc.data.id,
