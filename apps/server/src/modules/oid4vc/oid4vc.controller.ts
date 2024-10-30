@@ -72,6 +72,7 @@ export class Oid4vcController {
       const { payload, expired } = validateJsonWebToken(accessToken);
       if (!payload || expired) throw new UnauthorizedException();
       if (payload.scope !== 'email-signer') throw new UnauthorizedException();
+      console.log(session);
       if (!session.isValid)
         throw new UnauthorizedException(
           'Your IDentity has not been verified yet',
@@ -210,7 +211,7 @@ export class Oid4vcController {
         if (actualSigners === invitedSigners) {
           this.emailService.docSignedNotif({
             containerId: container.id,
-            emails: container.invitees,
+            emails: [...container.invitees, container.ownedBy.email],
           });
         }
 

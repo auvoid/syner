@@ -101,9 +101,6 @@ export class ContainersController {
         ownedBy: true,
       },
     );
-    if (!container.invitees.includes(payload.email)) {
-      throw new Error('You are not suppsed to be here');
-    }
-    return container;
+    return { container, email: payload.email };
   }
 }

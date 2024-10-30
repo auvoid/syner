@@ -22,7 +22,7 @@ const config = {
 			colors: {
 				// flowbite-svelte
 				primary: {
-					900: '#F7D57E'
+					900: '#AFD47E'
 				},
 				gray: {
 					50: '#F9FAFB',
@@ -133,7 +133,7 @@ const config = {
 					900: '#751A3D'
 				},
 				brand: {
-					yellow: '#F7D57E',
+					yellow: '#afd47e',
 					green: '#7EBBCD',
 					yellow_hover: '#DEC071',
 					yellow_light: '#F9E5AE',
