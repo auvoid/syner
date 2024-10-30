@@ -17,9 +17,6 @@ importers:
       '@sveltejs/adapter-node':
         specifier: ^5.2.8
         version: 5.2.8(@sveltejs/kit@2.7.2(@sveltejs/vite-plugin-svelte@4.0.0(svelte@5.0.5)(vite@5.4.10(@types/node@20.16.15)(terser@5.36.0)))(svelte@5.0.5)(vite@5.4.10(@types/node@20.16.15)(terser@5.36.0)))
-      '@veriff/js-sdk':
-        specifier: ^1.5.1
-        version: 1.5.1
       axios:
         specifier: ^1.7.7
         version: 1.7.7
@@ -60,6 +57,9 @@ importers:
       '@types/eslint':
         specifier: ^9.6.0
         version: 9.6.1
+      '@veriff/incontext-sdk':
+        specifier: ^2.3.1
+        version: 2.3.1
       autoprefixer:
         specifier: ^10.4.20
         version: 10.4.20(postcss@8.4.47)
@@ -1641,9 +1641,8 @@ packages:
   '@veramo/core@4.2.0':
     resolution: {integrity: sha512-HIqbXfCbwOAJelR5Ohsm22vr63cy6ND8Ua/+9wfMDAiymUUS7NryaJ/v6NRtnmIrNZqUMDdR9/TWdp4cCq5eBg==}
 
-  '@veriff/js-sdk@1.5.1':
-    resolution: {integrity: sha512-THHcyRTctdtXUpKAEGnddTkwgFdRi2taAigtnhOfGmoCp23m+9vlZp5GnT7qmswfyZk48BCZ4Uc2gT7AUIhqTA==}
-    engines: {node: '>=16', npm: '>=8'}
+  '@veriff/incontext-sdk@2.3.1':
+    resolution: {integrity: sha512-ToNsRwD1caQYVStqKT3T6pTvV3KZxomnXvC3DYJDW2f45F3Zr7hvR9Fub551M/yKLmBpkwdqGXlFU1tI33XdPQ==}
 
   '@webassemblyjs/ast@1.12.1':
     resolution: {integrity: sha512-EKfMUOPRRUTy5UII4qJDGPpqfwjOmZ5jeGFwid9mnoqIFK+e0vqoi1qH56JpmZSzEL53jKnNzScdmftJyG5xWg==}
@@ -2360,6 +2359,9 @@ packages:
     resolution: {integrity: sha512-l4gcSouhcgIKRvyy99RNVOgxXiicE+2jZoNmaNmZ6JXiGajBOJAesk1OBlJuM5k2c+eudGdLxDqXuPCKIj6kpw==}
     engines: {node: '>=6'}
 
+  dom-focus-lock@1.0.4:
+    resolution: {integrity: sha512-Tiz2EYedB14UW0/lY5PEzFAie66e9itoEVKhz0M9xz1cHqP4Jd0XUg/AT2m6DtbhCFa9DHo6nQyePuLH7Mx9+A==}
+
   dotenv@16.4.5:
     resolution: {integrity: sha512-ZmdL2rui+eB2YwhsWzjInR8LldtZHGDoQ1ugH85ppHKwpUHL7j7rN0Ti9NCnGiQbhaZ11FpR+7ao1dNsmduNUg==}
     engines: {node: '>=12'}
@@ -2703,6 +2705,9 @@ packages:
 
   flowbite@2.5.2:
     resolution: {integrity: sha512-kwFD3n8/YW4EG8GlY3Od9IoKND97kitO+/ejISHSqpn3vw2i5K/+ZI8Jm2V+KC4fGdnfi0XZ+TzYqQb4Q1LshA==}
+
+  focus-lock@0.6.8:
+    resolution: {integrity: sha512-vkHTluRCoq9FcsrldC0ulQHiyBYgVJB2CX53I8r0nTC6KnEij7Of0jpBspjt3/CuNb6fyoj3aOh9J2HgQUM0og==}
 
   follow-redirects@1.15.9:
     resolution: {integrity: sha512-gew4GsXizNgdoRyqmyfMHyAmXsZDk6mHkSxZFCzW9gwlbtOW44CDtYavM+y+72qD/Vq2l550kMF52DT8fOLJqQ==}
@@ -4645,6 +4650,9 @@ packages:
 
   tslib@2.8.0:
     resolution: {integrity: sha512-jWVzBLplnCmoaTr13V9dYbiQ99wvZRd0vNWaDRg+aVYRcjDF3nDksxFDE/+fkXnKhpnUUkmx5pK/v8mCtLVqZA==}
+
+  tua-body-scroll-lock@1.2.1:
+    resolution: {integrity: sha512-DuGbQxIBSbz7/aAwh0oMThOwCwDdYzsU8nF5XQPAvoeOBWp/qhjrZfOtc84gj6CQLZu5L1+TgMNX6fW3OuafHA==}
 
   tweetnacl-util@0.15.1:
     resolution: {integrity: sha512-RKJBIj8lySrShN4w6i/BonWp2Z/uxwC3h4y7xsRrpP59ZboCd0GpEVsOnMDYLMmKBpYhb5TgHzZXy7wTfYFBRw==}
@@ -6713,7 +6721,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@veriff/js-sdk@1.5.1': {}
+  '@veriff/incontext-sdk@2.3.1':
+    dependencies:
+      dom-focus-lock: 1.0.4
+      tua-body-scroll-lock: 1.2.1
 
   '@webassemblyjs/ast@1.12.1':
     dependencies:
@@ -7506,6 +7517,10 @@ snapshots:
     dependencies:
       '@leichtgewicht/ip-codec': 2.0.5
 
+  dom-focus-lock@1.0.4:
+    dependencies:
+      focus-lock: 0.6.8
+
   dotenv@16.4.5: {}
 
   eastasianwidth@0.2.0: {}
@@ -7997,6 +8012,8 @@ snapshots:
       mini-svg-data-uri: 1.4.4
     transitivePeerDependencies:
       - rollup
+
+  focus-lock@0.6.8: {}
 
   follow-redirects@1.15.9: {}
 
@@ -10137,6 +10154,8 @@ snapshots:
   tslib@2.7.0: {}
 
   tslib@2.8.0: {}
+
+  tua-body-scroll-lock@1.2.1: {}
 
   tweetnacl-util@0.15.1: {}
 

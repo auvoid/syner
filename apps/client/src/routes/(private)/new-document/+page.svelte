@@ -14,8 +14,14 @@
 	import { createWebsocket } from '$lib/utils/websocket';
 	import { onMount } from 'svelte';
 	import { json } from '@sveltejs/kit';
-	import { Veriff } from '@veriff/js-sdk';
 	import { PUBLIC_VERIFF_KEY } from '$env/static/public';
+	import { page } from '$app/stores';
+	import {
+		type EmbeddedOptions,
+		MESSAGES,
+		type VeriffFrameOptions,
+		createVeriffFrame
+	} from '@veriff/incontext-sdk';
 
 	let step = 0;
 	let docName: string;
@@ -55,29 +61,43 @@
 			const {
 				data: { user }
 			} = await apiClient.get('/users/session');
-			if (user.verfied) {
-				requestIdVerificaiton = false;
-			} else {
-				const veriff = Veriff({
-					apiKey: PUBLIC_VERIFF_KEY,
-					parentId: 'veriff-root'
-				});
-				veriff.setParams({
-					person: {
-						givenName: '',
-						lastName: ''
-					},
-					vendorData: `user::${user.id}`
-				});
-				veriff.mount({
-					submitBtnText: 'Get Verified'
-				});
+			if (!user.verified) {
+				return (showSignModal = true);
 			}
+			requestIdVerificaiton = false;
 			const { data } = await apiClient.post(`/oid4vc/signature-session`, { containerId });
 			qr = data.uri;
 
 			showSignModal = true;
 		}
+	}
+
+	async function verifyUser() {
+		const {
+			data: { verification }
+		} = await apiClient.get('/users/idv');
+		createVeriffFrame({
+			url: verification.url,
+			onEvent: function (msg: MESSAGES) {
+				switch (msg) {
+					case MESSAGES.STARTED:
+						console.log('Verification started');
+						break;
+					case MESSAGES.SUBMITTED:
+						console.log('Verification submitted');
+						break;
+					case MESSAGES.FINISHED:
+						console.log('Verification finished');
+						break;
+					case MESSAGES.CANCELED:
+						console.log('Verification closed');
+						break;
+					case MESSAGES.RELOAD_REQUEST:
+						console.log('Verification reloaded');
+						break;
+				}
+			}
+		});
 	}
 
 	const uploadPdf = async () => {
@@ -122,6 +142,8 @@
 			if (data.container) {
 				console.log(data);
 				signingComplete = true;
+			} else if (data.idVerified) {
+				requestIdVerificaiton = false;
 			}
 		};
 	});
@@ -156,7 +178,7 @@
 					You need to undergo Identity Verification before you can sign this document
 				</h1>
 			</div>
-			<div id="veriff-root"></div>
+			<Button on:click={verifyUser}>Start Verification</Button>
 		</div>
 	{:else}
 		<div class="flex flex-col gap-5">

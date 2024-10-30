@@ -23,6 +23,7 @@
 		"@tailwindcss/forms": "^0.5.9",
 		"@tailwindcss/typography": "^0.5.15",
 		"@types/eslint": "^9.6.0",
+		"@veriff/incontext-sdk": "^2.3.1",
 		"autoprefixer": "^10.4.20",
 		"eslint": "^9.7.0",
 		"eslint-config-prettier": "^9.1.0",
@@ -45,7 +46,6 @@
 	},
 	"dependencies": {
 		"@sveltejs/adapter-node": "^5.2.8",
-		"@veriff/js-sdk": "^1.5.1",
 		"axios": "^1.7.7",
 		"svelte-qrcode-action": "^1.0.2"
 	}

@@ -28,7 +28,9 @@ import { UserSession } from '../../decorators';
 import { Session } from '../../entities';
 import { errors } from '../../errors';
 import type { Response } from 'express';
-import { verifyHmacSignature } from 'src/utils/hmac';
+import { createHmacSignature, verifyHmacSignature } from 'src/utils/hmac';
+import { wsServer } from 'src/main';
+import axios from 'axios';
 
 @Controller('users')
 export class UsersController {
@@ -55,11 +57,6 @@ export class UsersController {
   @Get()
   async getUser(@CurrentUser() user: User) {
     return user;
-  }
-
-  @Get('/session')
-  async getCurrentSession(@UserSession() session: Session) {
-    return session;
   }
 
   @Post('/login')
@@ -99,6 +96,34 @@ export class UsersController {
     return { session, user };
   }
 
+  @Get('/idv')
+  async attemptVerification(
+    @CurrentUser() user: User,
+    @UserSession() session: Session,
+  ) {
+    const veriffBody = {
+      verification: {
+        vendorData:
+          user && user.id ? `user::${user.id}` : `session::${session.id}`,
+      },
+    };
+    const signature = createHmacSignature(
+      veriffBody,
+      process.env.VERIFF_HMAC_KEY,
+    );
+    const { data: veriffSession } = await axios.post(
+      'https://stationapi.veriff.com/v1/sessions',
+      veriffBody,
+      {
+        headers: {
+          'X-HMAC-SIGNATURE': signature,
+          'X-AUTH-CLIENT': process.env.PUBLIC_VERIFF_KEY,
+        },
+      },
+    );
+    return veriffSession;
+  }
+
   @Post('/idv')
   async identityVerificationWebhook(
     @Headers('X-HMAC-SIGNATURE') signature: string,
@@ -120,6 +145,8 @@ export class UsersController {
     } else {
       await this.sessionService.findByIdAndUpdate(id, { isValid: approved });
     }
+
+    wsServer.broadcast(id, { idVerified: approved });
   }
 
   @IsAuthenticated()

@@ -36,7 +36,7 @@ export class EmailService {
       ${process.env.PUBLIC_CLIENT_URI}/sign?token=${token}
     `;
     const message = {
-      from: 'Auvo ID <no-reply@auvo.io>',
+      from: 'Syner <no-reply@auvo.io>',
       to: email,
       subject: `Document Signing Request from Syner`,
       html: `
@@ -84,7 +84,7 @@ export class EmailService {
 
     emails.forEach(async (email) => {
       const message = {
-        from: 'Auvo ID <no-reply@auvo.io>',
+        from: 'Syner <no-reply@auvo.io>',
         to: email,
         subject: `Syner Document Signed!`,
         html: `
