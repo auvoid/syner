@@ -139,7 +139,7 @@ export class UsersController {
     if (!verifyHmacSignature(body, signature, process.env.VERIFF_HMAC_KEY))
       throw new BadRequestException();
     const [type, sessionId, userId] = stateIdentifier.split('::');
-    let approved = body.data.verification.status === 'success';
+    let approved = body.data.verification.decision === 'approved';
     if (type === 'user') {
       await this.userService.findByIdAndUpdate(userId, { verified: approved });
     } else {
