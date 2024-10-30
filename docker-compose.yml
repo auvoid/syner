@@ -1,0 +1,63 @@
+services:
+  syner-client:
+    container_name: syner-client
+    networks:
+      - host-bridge
+    build:
+      context: .
+      dockerfile: ./docker/dev/Dockerfile.client
+    ports:
+      - 5173:5173
+    env_file:
+      - .env
+    develop:
+      watch:
+        - action: sync
+          path: ./apps/client
+          target: /usr/src/app/apps/client
+          ignore:
+            - node_modules
+        - action: rebuild
+          path: ./apps/client/package.json
+    restart: unless-stopped
+    depends_on:
+      - syner-server
+  syner-server:
+    networks:
+      - host-bridge
+    container_name: syner-server
+    build:
+      context: .
+      dockerfile: ./docker/dev/Dockerfile.server
+    ports:
+      - 1209:1209
+    develop:
+      watch:
+        - action: sync
+          path: ./apps/server
+          target: /usr/src/app/apps/server
+          ignore:
+            - node_modules
+        - action: rebuild
+          path: ./apps/server/package.json
+    restart: unless-stopped
+    depends_on:
+      - syner-db
+    env_file:
+      - .env
+  syner-db:
+    networks:
+      - host-bridge
+    container_name: syner-db
+    image: postgres:15.4-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD-password}
+    volumes:
+      - ~/data/syner/db:/var/lib/postgresql/data
+    ports:
+      - 5434:5432
+
+networks:
+  host-bridge:
+    driver: bridge

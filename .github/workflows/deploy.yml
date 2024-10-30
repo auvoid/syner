@@ -5,17 +5,16 @@ name: Deploy
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   build:
-
     runs-on: difhack
     steps:
-    - uses: actions/checkout@v4
-    - run: | 
-        rm -rf ~/syner/*
-        cp -r ./* ~/syner/
-        cp ~/.env.syner ~/syner/.env
-        cd ~/syner 
-        docker compose -f ./dev.docker-compose.yml up --build -d
+      - uses: actions/checkout@v4
+      - run: |
+          rm -rf ~/syner/*
+          cp -r ./* ~/syner/
+          cp ~/.env.syner ~/syner/.env
+          cd ~/syner 
+          docker compose  --build --force-recreate -d
