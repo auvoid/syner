@@ -12,7 +12,7 @@
     "build:server": "pnpm -F=server build",
     "server:migration:generate": "pnpm -F=server typeorm:generate",
     "server:migration:migrate": "pnpm -F=server typeorm:run",
-    "server:migrate-and-run": "pnpm -F=server typeorm:run; pnpm -F=server start:dev",
+    "server:migrate-and-run": "pnpm -F=server typeorm:run; pnpm -F=server build; pnpm -F=server start:dev",
     "format": "pnpm -F=* format",
     "lint": "pnpm -F=* lint",
     "dev": "docker compose -f ./dev.docker-compose.yml up"
