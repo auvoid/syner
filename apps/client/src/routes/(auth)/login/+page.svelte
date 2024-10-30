@@ -31,6 +31,10 @@
 			// goto('/');
 		}
 	}
+
+	onMount(() => {
+		console.log('Reached');
+	});
 </script>
 
 <div class="flex flex-col gap-3">

@@ -14,15 +14,20 @@
 	} from '@veriff/incontext-sdk';
 	import { PUBLIC_VERIFF_KEY } from '$env/static/public';
 	import Button from '$lib/components/ui/Button.svelte';
+	import DocPreviewBar from '$lib/components/fragments/DocPreviewBar.svelte';
+	import { Card, Li, Modal } from 'flowbite-svelte';
 
 	$: signingComplete = false;
 	$: docUrl = '';
 	let showSignModal = false;
 	let requestIdVerificaiton = true;
+	let userEmail: string;
 
 	let qr: string;
-
+	let signingParties: string[]
+	let signatures: string[]
 	let attemptSignature: () => Promise<void>;
+		let containerId: string
 
 	async function verifyUser() {
 		const {
@@ -52,6 +57,20 @@
 		});
 	}
 
+	function handleSignClick() {
+		const {
+				data: { user }
+			} = await apiClient.get('/users/session');
+			if (!user.verified) {
+				return (showSignModal = true);
+			}
+			requestIdVerificaiton = false;
+			const { data } = await apiClient.post(`/oid4vc/signature-session`, { containerId });
+			qr = data.uri;
+
+			showSignModal = true;
+	}
+
 	onMount(async () => {
 		const ws = createWebsocket();
 		ws.onmessage = async (event) => {
@@ -75,7 +94,10 @@
 			}
 			const token = $page.url.searchParams.get('token');
 			const doc = await apiClient.post('/container/external-signer', { token });
-			docUrl = (await apiClient.get(`/upload?cid=${doc.data.files[0].cid}`)).data;
+			signingParties = doc.data.container.invitees;
+			signatures = doc.data.container.signatures.map((s) => s.email)
+
+			docUrl = (await apiClient.get(`/upload?cid=${doc.data.container.files[0].cid}`)).data;
 			const sigSession = await apiClient
 				.post(`/oid4vc/signature-session`, {
 					containerId: doc.data.id,
@@ -96,6 +118,8 @@
 		};
 		attemptSignature();
 	});
+
+$: signedAlready =
 </script>
 
 <div class="flex flex-col w-screen h-[calc(100vh-1rem)] my-4 mx-4">
@@ -137,3 +161,42 @@
 		</div>
 	</div>
 </div>
+
+<main class="flex gap-5">
+	<DocPreviewBar>
+		<div class="flex flex-col h-full justify-between">
+			<div class="flex flex-col gap-4">
+				<div class="flex items-center justify-between">
+					<h1 class="font-bold text-2xl dark:text-white">Sign Document</h1>
+				</div>
+				<h2 class="font-bold text-lg">Signatures</h2>
+				{#if signedAlready || signingComplete}
+					<div class="text-gray-600 font-semibold">
+						{`You: ✅ Signed`}
+					</div>
+				{:else}
+					<div class="text-gray-800 font-bold">
+						{`You: 🕐 Pending`}
+					</div>
+				{/if}
+				{#each signingParties as invitee (invitee)}
+					<div class="text-gray-600 font-semibold">
+						{`${invitee}: ${signatures.includes(invitee) ? '✅ Signed' : '🕐 Pending'}`}
+					</div>
+				{/each}
+				{#if !signedAlready}
+					<p>Please take a look at the document and sign it by clicking the button below</p>
+				{/if}
+			</div>
+			{#if !signedAlready && !signingComplete}
+				<div class="flex flex-col gap-2">
+					<div class="flex gap-4 w-full">
+						<Button buttonClass="w-full" color="yellow" on:click={handleSignClick}
+							>Sign Document</Button
+						>
+					</div>
+				</div>
+			{/if}
+		</div>
+	</DocPreviewBar>
+</main>

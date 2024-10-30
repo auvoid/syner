@@ -1,5 +1,7 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
+	import { token } from '$lib/store/store';
 	import { Avatar, Sidebar, SidebarGroup, SidebarItem, SidebarWrapper } from 'flowbite-svelte';
 	import {
 		ChartPieSolid,
@@ -10,6 +12,11 @@
 	} from 'flowbite-svelte-icons';
 
 	$: activeUrl = $page.url.pathname;
+
+	const handleLogout = async () => {
+		// token.set(null);
+		goto('/login');
+	};
 </script>
 
 <Sidebar {activeUrl}>
@@ -63,7 +70,7 @@
 						/>
 					</svelte:fragment>
 				</SidebarItem>
-				<SidebarItem label="Logout">
+				<SidebarItem on:click={handleLogout} label="Logout">
 					<svelte:fragment slot="icon">
 						<LifeSaverSolid
 							class="h-6 w-6 text-gray-500 transition duration-75 group-hover:text-gray-900"
