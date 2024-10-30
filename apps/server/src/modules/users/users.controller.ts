@@ -129,17 +129,11 @@ export class UsersController {
     @Headers('X-HMAC-SIGNATURE') signature: string,
     @Body() body: Record<string, any>,
   ) {
-    const stateIdentifier = body.verification.vendorData;
+    const stateIdentifier = body.vendorData;
     if (!verifyHmacSignature(body, signature, process.env.VERIFF_HMAC_KEY))
       throw new BadRequestException();
-    const affirmativeStatusTypes = [
-      'approved',
-      'declined',
-      'expired',
-      'abandoned',
-    ];
     const [type, id] = stateIdentifier.split('::');
-    let approved = body.verification.status === 'approved';
+    let approved = body.data.verification.status === 'approved';
     if (type === 'user') {
       await this.userService.findByIdAndUpdate(id, { verified: approved });
     } else {
