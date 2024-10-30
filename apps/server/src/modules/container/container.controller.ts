@@ -5,9 +5,11 @@ import {
   Controller,
   Get,
   NotFoundException,
+  Param,
   Patch,
   Post,
   Res,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ContainersService } from './container.service';
 import { IsAuthenticated } from '../../guards/auth.guard';
@@ -40,6 +42,18 @@ export class ContainersController {
       },
     );
     return containers;
+  }
+
+  @Get(':id')
+  @IsAuthenticated()
+  async getContainerById(@Param('id') id: string, @CurrentUser() user: User) {
+    const container = await this.containersService.findById(id, {
+      ownedBy: true,
+      signatures: true,
+      files: true,
+    });
+    if (container.ownedBy.id !== user.id) throw new UnauthorizedException();
+    return container;
   }
 
   @Post()

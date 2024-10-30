@@ -13,7 +13,6 @@
 	import Qr from '$lib/components/ui/Qr.svelte';
 	import { createWebsocket } from '$lib/utils/websocket';
 	import { onMount } from 'svelte';
-	import { json } from '@sveltejs/kit';
 	import { PUBLIC_VERIFF_KEY } from '$env/static/public';
 	import { page } from '$app/stores';
 	import {
@@ -25,13 +24,17 @@
 
 	let step = 0;
 	let docName: string;
-	let signingParties: string[];
+	let signingParties: string[] = [];
 	let emailContent: string;
 	let showSendEmailModal: boolean = false;
 	let showSignModal: boolean = false;
 	let containerId: string;
 	let qr: string;
 	let requestIdVerificaiton = true;
+	let editingView = false;
+	let docUrl: string;
+	let signedAlready = false;
+	let signatures: string[] = [];
 
 	$: signingComplete = false;
 
@@ -135,6 +138,22 @@
 	};
 
 	onMount(async () => {
+		const urlParams = new URLSearchParams($page.url.search);
+		const urlContainerId = urlParams.get('id');
+		if (urlContainerId) {
+			const { data } = await apiClient.get(`/container/${urlContainerId}`);
+			step = 1;
+			docName = data.name;
+			containerId = data.id;
+			signingParties = data.invitees;
+			signatures = data.signatures.map((s) => s.email);
+
+			const {
+				data: { user }
+			} = await apiClient.get('/users/session');
+			signedAlready = data.signatures.find((s) => s.email === user.email);
+			docUrl = (await apiClient.get(`/upload?cid=${data.files[0].cid}`)).data;
+		}
 		const ws = createWebsocket();
 		ws.onmessage = async (event) => {
 			console.log(event);
@@ -206,7 +225,7 @@
 			bind:emailContent
 		/>
 	{:else if step === 1}
-		<Step2 bind:pdfFile />
+		<Step2 bind:pdfFile {docUrl} />
 	{/if}
 	<DocPreviewBar>
 		<div class="flex flex-col h-full justify-between">
@@ -238,44 +257,48 @@
 			{:else if step === 1}
 				<div class="flex flex-col gap-4">
 					<div class="flex items-center justify-between">
-						<h1 class="font-bold text-2xl dark:text-white">Document Name</h1>
+						<h1 class="font-bold text-2xl dark:text-white">Sign Document</h1>
 					</div>
-					<Card>
-						<div class="flex flex-col gap-3">
-							<div>
-								<Input label="ananya@auvo.io (prefilled email of signing party)" value="Ananya Rana"
-								></Input>
-							</div>
-							<div class="flex justify-between gap-3 items-center">
-								<BarsOutline size="xl"></BarsOutline>
-								<div class="w-full">
-									<Button buttonClass="w-full" color="light-yellow"
-										>Place the signature in document</Button
-									>
-								</div>
-							</div>
+					<h2 class="font-bold text-lg">Signatures</h2>
+					{#if signedAlready || signingComplete}
+						<div class="text-gray-600 font-semibold">
+							{`You: ✅ Signed`}
 						</div>
-					</Card>
+					{:else}
+						<div class="text-gray-800 font-bold">
+							{`You: 🕐 Pending`}
+						</div>
+					{/if}
+					{#each signingParties as invitee (invitee)}
+						<div class="text-gray-600 font-semibold">
+							{`${invitee}: ${signatures.includes(invitee) ? '✅ Signed' : '🕐 Pending'}`}
+						</div>
+					{/each}
+					{#if !signedAlready}
+						<p>Please take a look at the document and sign it by clicking the button below</p>
+					{/if}
 				</div>
 			{/if}
-			<div class="flex flex-col gap-2">
-				<div>
-					<!-- svelte-ignore a11y_click_events_have_key_events -->
-					<!-- svelte-ignore a11y_no_static_element_interactions -->
-					<small
-						class="flex w-full cursor-pointer justify-end dark:text-white"
-						on:click={handleGoBack}><ChevronLeftOutline></ChevronLeftOutline>Go Back</small
-					>
+			{#if !signedAlready}
+				<div class="flex flex-col gap-2">
+					<div>
+						<!-- svelte-ignore a11y_click_events_have_key_events -->
+						<!-- svelte-ignore a11y_no_static_element_interactions -->
+						<small
+							class="flex w-full cursor-pointer justify-end dark:text-white"
+							on:click={handleGoBack}><ChevronLeftOutline></ChevronLeftOutline>Go Back</small
+						>
+					</div>
+					<div class="flex gap-4 w-full">
+						<Button buttonClass="w-full" color="white"
+							>{step === 0 ? 'Save as Draft' : 'Cancel'}</Button
+						>
+						<Button buttonClass="w-full" color="yellow" on:click={handleContinue}
+							>{step === 0 ? 'Send' : 'Sign'}</Button
+						>
+					</div>
 				</div>
-				<div class="flex gap-4 w-full">
-					<Button buttonClass="w-full" color="white"
-						>{step === 0 ? 'Save as Draft' : 'Cancel'}</Button
-					>
-					<Button buttonClass="w-full" color="yellow" on:click={handleContinue}
-						>{step === 0 ? 'Send' : 'Sign'}</Button
-					>
-				</div>
-			</div>
+			{/if}
 		</div>
 	</DocPreviewBar>
 </div>

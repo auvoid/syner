@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { apiClient } from '$lib/axios/axios';
 	import DocPreviewBar from '$lib/components/fragments/DocPreviewBar.svelte';
 	import Badge from '$lib/components/ui/Badge.svelte';
@@ -63,8 +64,7 @@
 							>
 								<DotsHorizontalOutline class="h-5 w-5 text-gray-800 dark:text-white" />
 								<Dropdown class="py-2">
-									<DropdownItem>View Document</DropdownItem>
-									<DropdownItem>Add Signing Parties</DropdownItem>
+									<DropdownItem on:click={() => goto(`/new-document?id=${row.id}`)}>View Document</DropdownItem>
 								</Dropdown>
 							</button>
 						</TableBodyCell>
