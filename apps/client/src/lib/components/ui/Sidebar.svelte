@@ -31,7 +31,7 @@
 				<div class="flex flex-col gap-6 mb-3">
 					<div class="flex items-center gap-3">
 						<Avatar rounded class="object-cover" src="" />
-						<h2 class="text-lg font-semibold">User name</h2>
+						<h2 class="text-lg font-semibold">Welcome!</h2>
 					</div>
 				</div>
 				<SidebarItem href="/dashboard" active={activeUrl === '/dashboard'} label="Documents">
