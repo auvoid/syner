@@ -97,6 +97,8 @@ export class Oid4vcController {
       container,
     });
 
+    console.log(alreadyExists);
+
     if (alreadyExists.length > 0) {
       throw new ConflictException('Document has already been signed');
     }

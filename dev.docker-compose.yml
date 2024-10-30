@@ -14,7 +14,7 @@ services:
       watch:
         - action: sync
           path: ./apps/client
-          target: /usr/src/app/client
+          target: /usr/src/app/apps/client
           ignore:
             - node_modules
         - action: rebuild
@@ -34,7 +34,7 @@ services:
       watch:
         - action: sync
           path: ./apps/server
-          target: /usr/src/app/core-api
+          target: /usr/src/app/apps/server
           ignore:
             - node_modules
         - action: rebuild

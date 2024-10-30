@@ -45,16 +45,13 @@ export class CurrentUserInterceptor implements NestInterceptor {
           : 'lax',
         secure: process.env.PUBLIC_BASE_URI.startsWith('https'),
       });
-      console.log('SESSION SET, 1:', session);
       req.session = session;
     }
 
     const { payload, expired } = validateJsonWebToken(refreshToken);
-    console.log('AUTH GUARD: ', payload);
 
     if (payload && !expired) {
       req.session = await this.sessionsService.findById(payload.sessionId);
-      console.log('SESSION SET 2:', req.session);
     } else {
       const session = await this.sessionsService.create({
         isValid: false,
@@ -68,7 +65,6 @@ export class CurrentUserInterceptor implements NestInterceptor {
           : 'lax',
         secure: process.env.PUBLIC_BASE_URI.startsWith('https'),
       });
-      console.log('SESSION SET 3: ', session);
       req.session = session;
     }
 

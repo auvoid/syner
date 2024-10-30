@@ -60,7 +60,6 @@ export class UploadController {
 
   @Get()
   async getSignedUrl(@Query('cid') cid: string) {
-    console.log('cid', cid);
     return await pinata.gateways.createSignedURL({
       cid,
       expires: 360,
