@@ -1,0 +1,14 @@
+import { MigrationInterface, QueryRunner } from "typeorm";
+
+export class Migration1730275482200 implements MigrationInterface {
+    name = 'Migration1730275482200'
+
+    public async up(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`ALTER TABLE "user" ADD "verified" boolean NOT NULL DEFAULT false`);
+    }
+
+    public async down(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`ALTER TABLE "user" DROP COLUMN "verified"`);
+    }
+
+}

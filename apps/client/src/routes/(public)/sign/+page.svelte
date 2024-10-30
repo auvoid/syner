@@ -6,28 +6,39 @@
 	import { Modal } from 'flowbite-svelte';
 	import { onMount } from 'svelte';
 	import { addToast } from '../../store';
+	import { Veriff} from "@veriff/js-sdk"
+	import { PUBLIC_VERIFF_KEY} from '$env/static/public';
 
 	$: signingComplete = false;
 	$: docUrl = '';
 	let showSignModal = false;
+	let requestIdVerificaiton = true
 
 	let qr: string;
 
-	onMount(async () => {
-		const ws = createWebsocket();
-		ws.onmessage = async (event) => {
-			const data = JSON.parse(event.data);
-			if (data.container) {
-				console.log(data);
-				signingComplete = true;
-			}
-		};
+	async function attemptSignature() {
+		const { data: session} = await apiClient.get('/users/session')
+		if (session.isValid) {
+			requestIdVerificaiton = false
+		} else {
+			const veriff = Veriff({
+					apiKey: PUBLIC_VERIFF_KEY,
+					parentId: 'veriff-root'
+				});
+				veriff.setParams({
+					person: {
+						givenName: '',
+						lastName: ''
+					},
+					vendorData: `session::${session.id}`
+				});
+				veriff.mount({
+					submitBtnText: 'Get Verified'
+				});
+		}
 		const token = $page.url.searchParams.get('token');
-		console.log('token', token);
 		const doc = await apiClient.post('/container/external-signer', { token });
-		console.log('doc', doc);
 		docUrl = (await apiClient.get(`/upload?cid=${doc.data.files[0].cid}`)).data;
-		// console.log(docUrl.data);
 		const sigSession = await apiClient
 			.post(`/oid4vc/signature-session`, {
 				containerId: doc.data.id,
@@ -40,12 +51,24 @@
 					message: e
 				});
 			});
-		console.log('sifSession', sigSession);
 		if (sigSession && sigSession.data) {
 			qr = sigSession.data.uri;
 			console.log('qr', qr);
 			showSignModal = true;
 		}
+	}
+
+
+
+	onMount(async () => {
+		const ws = createWebsocket();
+		ws.onmessage = async (event) => {
+			const data = JSON.parse(event.data);
+			if (data.container) {
+				console.log(data);
+				signingComplete = true;
+			}
+		};
 	});
 </script>
 
@@ -77,6 +100,13 @@
 		</div>
 		<div class="">
 			<h1>Sign Document</h1>
+			{#if requestIdVerificaiton}
+				<div>
+				<p class="text-lg text-gray-900 font-semibold">
+					To sign the document scan the QR with your Identity wallet
+				</p>
+			</div>
+			{:else}
 			<div>
 				<p class="text-lg text-gray-900 font-semibold">
 					To sign the document scan the QR with your Identity wallet
@@ -90,6 +120,7 @@
 			{#if signingComplete}
 				Signed ✅
 			{/if}
+		{/if}
 		</div>
 	</div>
 </div>

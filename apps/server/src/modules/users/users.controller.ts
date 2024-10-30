@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   Res,
+  Headers,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { SessionsService } from './sessions.service';
@@ -27,6 +28,7 @@ import { UserSession } from '../../decorators';
 import { Session } from '../../entities';
 import { errors } from '../../errors';
 import type { Response } from 'express';
+import { verifyHmacSignature } from 'src/utils/hmac';
 
 @Controller('users')
 export class UsersController {
@@ -89,15 +91,35 @@ export class UsersController {
     };
   }
 
-  @IsAuthenticated()
-  @ApiCookieAuth()
-  @Get('verify-email')
-  async verifyEmail(@CurrentUser() user: User) {
-    const isAlreadyVerified = (await this.getCurrentUser(user)).emailVerified;
+  @Get('/session')
+  async getCurrentSessionInfo(
+    @UserSession() session: Session,
+    @CurrentUser() user: User,
+  ) {
+    return { session, user };
+  }
 
-    if (isAlreadyVerified)
-      throw new ConflictException(errors.users.ALREADY_VERIFIED);
-    await this.emailService.sendUserEmailVerification({ user });
+  @Post('/idv')
+  async identityVerificationWebhook(
+    @Headers('X-HMAC-SIGNATURE') signature: string,
+    @Body() body: Record<string, any>,
+  ) {
+    const stateIdentifier = body.verification.vendorData;
+    if (!verifyHmacSignature(body, signature, process.env.VERIFF_HMAC_KEY))
+      throw new BadRequestException();
+    const affirmativeStatusTypes = [
+      'approved',
+      'declined',
+      'expired',
+      'abandoned',
+    ];
+    const [type, id] = stateIdentifier.split('::');
+    let approved = body.verification.status === 'approved';
+    if (type === 'user') {
+      await this.userService.findByIdAndUpdate(id, { verified: approved });
+    } else {
+      await this.sessionService.findByIdAndUpdate(id, { isValid: approved });
+    }
   }
 
   @IsAuthenticated()

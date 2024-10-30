@@ -17,6 +17,9 @@ importers:
       '@sveltejs/adapter-node':
         specifier: ^5.2.8
         version: 5.2.8(@sveltejs/kit@2.7.2(@sveltejs/vite-plugin-svelte@4.0.0(svelte@5.0.5)(vite@5.4.10(@types/node@20.16.15)(terser@5.36.0)))(svelte@5.0.5)(vite@5.4.10(@types/node@20.16.15)(terser@5.36.0)))
+      '@veriff/js-sdk':
+        specifier: ^1.5.1
+        version: 1.5.1
       axios:
         specifier: ^1.7.7
         version: 1.7.7
@@ -1637,6 +1640,10 @@ packages:
 
   '@veramo/core@4.2.0':
     resolution: {integrity: sha512-HIqbXfCbwOAJelR5Ohsm22vr63cy6ND8Ua/+9wfMDAiymUUS7NryaJ/v6NRtnmIrNZqUMDdR9/TWdp4cCq5eBg==}
+
+  '@veriff/js-sdk@1.5.1':
+    resolution: {integrity: sha512-THHcyRTctdtXUpKAEGnddTkwgFdRi2taAigtnhOfGmoCp23m+9vlZp5GnT7qmswfyZk48BCZ4Uc2gT7AUIhqTA==}
+    engines: {node: '>=16', npm: '>=8'}
 
   '@webassemblyjs/ast@1.12.1':
     resolution: {integrity: sha512-EKfMUOPRRUTy5UII4qJDGPpqfwjOmZ5jeGFwid9mnoqIFK+e0vqoi1qH56JpmZSzEL53jKnNzScdmftJyG5xWg==}
@@ -6705,6 +6712,8 @@ snapshots:
       z-schema: 5.0.5
     transitivePeerDependencies:
       - supports-color
+
+  '@veriff/js-sdk@1.5.1': {}
 
   '@webassemblyjs/ast@1.12.1':
     dependencies:

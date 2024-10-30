@@ -39,8 +39,22 @@ services:
             - node_modules
         - action: rebuild
           path: ./apps/server/package.json
+    depends_on:
+      - syner-db
     env_file:
       - .env
+  syner-db:
+    networks:
+      - host-bridge
+    container_name: syner-db
+    image: postgres:15.4-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD-password}
+    volumes:
+      - ./db/data:/var/lib/postgresql/data
+    ports:
+      - 5434:5432
 
 networks:
   host-bridge:

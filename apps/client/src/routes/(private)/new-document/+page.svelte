@@ -14,6 +14,8 @@
 	import { createWebsocket } from '$lib/utils/websocket';
 	import { onMount } from 'svelte';
 	import { json } from '@sveltejs/kit';
+	import { Veriff } from '@veriff/js-sdk';
+	import { PUBLIC_VERIFF_KEY } from '$env/static/public';
 
 	let step = 0;
 	let docName: string;
@@ -23,6 +25,7 @@
 	let showSignModal: boolean = false;
 	let containerId: string;
 	let qr: string;
+	let requestIdVerificaiton = true;
 
 	$: signingComplete = false;
 
@@ -49,6 +52,27 @@
 			}
 			showSendEmailModal = true;
 		} else if (step === 1) {
+			const {
+				data: { user }
+			} = await apiClient.get('/users/session');
+			if (user.verfied) {
+				requestIdVerificaiton = false;
+			} else {
+				const veriff = Veriff({
+					apiKey: PUBLIC_VERIFF_KEY,
+					parentId: 'veriff-root'
+				});
+				veriff.setParams({
+					person: {
+						givenName: '',
+						lastName: ''
+					},
+					vendorData: `user::${user.id}`
+				});
+				veriff.mount({
+					submitBtnText: 'Get Verified'
+				});
+			}
 			const { data } = await apiClient.post(`/oid4vc/signature-session`, { containerId });
 			qr = data.uri;
 
@@ -125,17 +149,28 @@
 </Modal>
 
 <Modal title="Sign Document" bind:open={showSignModal}>
-	<div class="flex flex-col gap-5">
-		<div>
-			<h1 class="text-lg text-gray-900 font-semibold">
-				To sign the document scan the QR with your Identity wallet
-			</h1>
+	{#if requestIdVerificaiton}
+		<div class="flex flex-col gap-5">
+			<div>
+				<h1 class="text-lg text-gray-900 font-semibold">
+					You need to undergo Identity Verification before you can sign this document
+				</h1>
+			</div>
+			<div id="veriff-root"></div>
 		</div>
-		<Qr data={qr}></Qr>
-		{#if signingComplete}
-			Signed ✅
-		{/if}
-	</div>
+	{:else}
+		<div class="flex flex-col gap-5">
+			<div>
+				<h1 class="text-lg text-gray-900 font-semibold">
+					To sign the document scan the QR with your Identity wallet
+				</h1>
+			</div>
+			<Qr data={qr}></Qr>
+			{#if signingComplete}
+				Signed ✅
+			{/if}
+		</div>
+	{/if}
 </Modal>
 
 <div class="flex gap-5">

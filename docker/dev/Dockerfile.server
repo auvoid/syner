@@ -13,5 +13,5 @@ COPY --from=build /usr/src/app /usr/src/app
 WORKDIR /usr/src/app
 RUN cd ./packages/dtos && pnpm build && cd ../..
 EXPOSE 1209
-CMD [ "pnpm", "dev:server" ]
+CMD [ "pnpm", "server:migration:migrate", "&&", "pnpm", "dev:server" ]
 

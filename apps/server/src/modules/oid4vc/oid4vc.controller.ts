@@ -42,6 +42,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { SignatureService } from './signature.service';
 import { CurrentUser } from '../../decorators';
 import { validateJsonWebToken } from '../../utils/jwt';
+import { EmailService } from '../email/email.service';
 @ApiTags('OpenID')
 @ApiExcludeController()
 @Controller('oid4vc')
@@ -51,6 +52,7 @@ export class Oid4vcController {
     private siopOfferService: SiopOfferService,
     private containersService: ContainersService,
     private signatureService: SignatureService,
+    private emailService: EmailService,
   ) {}
 
   @Serialize(SiopOfferDTO)
@@ -70,8 +72,16 @@ export class Oid4vcController {
       const { payload, expired } = validateJsonWebToken(accessToken);
       if (!payload || expired) throw new UnauthorizedException();
       if (payload.scope !== 'email-signer') throw new UnauthorizedException();
+      if (!session.isValid)
+        throw new UnauthorizedException(
+          'Your IDentity has not been verified yet',
+        );
       state = containerId + '::' + session.id + '::' + payload.email;
     } else {
+      if (!user.verified)
+        throw new UnauthorizedException(
+          'Your IDentity has not been verified yet',
+        );
       state = containerId + '::' + session.id + '::' + user.email;
     }
     console.log('created state:', state);
@@ -88,22 +98,25 @@ export class Oid4vcController {
       responseType: 'id_token',
     });
 
-    const container = await this.containersService.findById(containerId);
+    const container = await this.containersService.findById(containerId, {
+      ownedBy: true,
+    });
 
     const email = state.split('::').slice(-1)[0];
 
-    const alreadyExists = await this.signatureService.findMany({
+    const signatureAlreadyExists = await this.signatureService.findOne({
       email,
-      container,
+      container: { id: container.id },
     });
 
-    console.log(alreadyExists);
-
-    if (alreadyExists.length > 0) {
+    if (signatureAlreadyExists) {
       throw new ConflictException('Document has already been signed');
     }
 
-    if (!container.invitees.includes(email)) {
+    if (
+      !container.invitees.includes(email) &&
+      container.ownedBy.email !== email
+    ) {
       throw new ForbiddenException('You are not allowed to sign this document');
     }
 
@@ -157,24 +170,54 @@ export class Oid4vcController {
       // idToken = signed JWT proof
       const [containerId, sessionId, email] = (state as string).split('::');
       console.log(state);
-      const container = await this.containersService.findById(containerId);
-
-      await this.signatureService.create({
-        email,
-        signature: idToken,
-        container,
+      const container = await this.containersService.findById(containerId, {
+        signatures: true,
+        ownedBy: true,
       });
 
-      const signedContainer = await this.containersService.findById(
-        containerId,
-        {
-          files: true,
-          signatures: true,
-          ownedBy: true,
-        },
-      );
+      const signatureAleadyExists = await this.signatureService.findOne({
+        container: { id: containerId },
+        email: email,
+      });
 
-      wsServer.broadcast(sessionId, { container: { ...signedContainer } });
+      if (!signatureAleadyExists) {
+        await this.signatureService.create({
+          email,
+          signature: idToken,
+          container,
+        });
+
+        const signedContainer = await this.containersService.findById(
+          containerId,
+          {
+            files: true,
+            signatures: true,
+            ownedBy: true,
+          },
+        );
+
+        const currentSigners = container.signatures.map(
+          (signer) => signer.email,
+        );
+        const actualSigners = currentSigners.concat([email]).sort().toString();
+
+        const invitedSigners = [...container.invitees, container.ownedBy.email]
+          .sort()
+          .toString();
+
+        console.log();
+
+        if (actualSigners === invitedSigners) {
+          this.emailService.docSignedNotif({
+            containerId: container.id,
+            emails: container.invitees,
+          });
+        }
+
+        wsServer.broadcast(sessionId, { container: signedContainer });
+      } else {
+        wsServer.broadcast(sessionId, { error: 'conflict', container: null });
+      }
     }
   }
 }

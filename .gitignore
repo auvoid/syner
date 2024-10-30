@@ -36,4 +36,5 @@ dist-ssr
 *.sln
 *.sw?
 
+./db/data
 .turbo
