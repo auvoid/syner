@@ -14,7 +14,7 @@
 	$: activeUrl = $page.url.pathname;
 
 	const handleLogout = async () => {
-		// token.set(null);
+		token.set(null);
 		goto('/login');
 	};
 </script>

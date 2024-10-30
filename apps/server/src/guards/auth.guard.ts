@@ -52,6 +52,21 @@ export class CurrentUserInterceptor implements NestInterceptor {
 
     if (payload && !expired) {
       req.session = await this.sessionsService.findById(payload.sessionId);
+      if (!req.session) {
+        const session = await this.sessionsService.create({
+          isValid: false,
+        });
+        refreshToken = createJsonWebToken({ sessionId: session.id }, '1y');
+        res.cookie('refreshToken', refreshToken, {
+          maxAge: 365 * 24 * 60 * 60 * 1000,
+          httpOnly: true,
+          sameSite: process.env.PUBLIC_BASE_URI.startsWith('https')
+            ? 'none'
+            : 'lax',
+          secure: process.env.PUBLIC_BASE_URI.startsWith('https'),
+        });
+        req.session = session;
+      }
     } else {
       const session = await this.sessionsService.create({
         isValid: false,
