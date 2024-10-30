@@ -7,12 +7,28 @@
 	import Input from '$lib/components/ui/Input.svelte';
 	import { BarsOutline, ChevronLeftOutline } from 'flowbite-svelte-icons';
 	import { goto } from '$app/navigation';
+	import { apiClient } from '$lib/axios/axios';
+	import type { AxiosResponse } from 'axios';
+	import { addToast } from '../../store';
+	import Qr from '$lib/components/ui/Qr.svelte';
+	import { createWebsocket } from '$lib/utils/websocket';
+	import { onMount } from 'svelte';
+	import { json } from '@sveltejs/kit';
 
 	let step = 0;
 	let docName: string;
 	let signingParties: string[];
 	let emailContent: string;
 	let showSendEmailModal: boolean = false;
+	let showSignModal: boolean = false;
+	let containerId: string;
+	let qr: string;
+
+	$: signingComplete = false;
+
+	let pdfFile: FileList;
+	$: isPdfUploading = false;
+	let uploadedPdfId: string;
 
 	function handleGoBack() {
 		if (step === 0) {
@@ -22,13 +38,69 @@
 		}
 	}
 
-	function handleContinue() {
+	async function handleContinue() {
 		if (step === 0) {
-			step++;
-		} else if (step === 1) {
+			if (!(signingParties.length > 0) || !(pdfFile.length > 0)) {
+				addToast({
+					type: 'error',
+					message: 'Fill signerfields and pdf pls.'
+				});
+				return;
+			}
 			showSendEmailModal = true;
+		} else if (step === 1) {
+			const { data } = await apiClient.post(`/oid4vc/signature-session`, { containerId });
+			qr = data.uri;
+
+			showSignModal = true;
 		}
 	}
+
+	const uploadPdf = async () => {
+		isPdfUploading = true;
+		const form = new FormData();
+		form.append('pdfFile', pdfFile[0]);
+		console.log(form);
+		const { data } = (await apiClient.post('/upload/pdf', form).catch((e) => {
+			isPdfUploading = false;
+			console.error(e);
+		})) as AxiosResponse<{ id: string }>;
+		isPdfUploading = false;
+		uploadedPdfId = data.id;
+		console.log(uploadedPdfId);
+	};
+
+	const handleSigningSubmit = async () => {
+		const { data } = (await apiClient
+			.post('/container', {
+				fileId: uploadedPdfId,
+				invitees: signingParties,
+				name: docName
+			})
+			.catch((e) => {
+				console.error(e);
+			})) as AxiosResponse<{
+			id: string;
+			invitees: string[];
+			files: Record<string, any>;
+			signatures: Record<string, any>;
+		}>;
+		containerId = data.id;
+		showSendEmailModal = false;
+		step++;
+	};
+
+	onMount(async () => {
+		const ws = createWebsocket();
+		ws.onmessage = async (event) => {
+			console.log(event);
+			const data = JSON.parse(event.data);
+			if (data.container) {
+				console.log(data);
+				signingComplete = true;
+			}
+		};
+	});
 </script>
 
 <Modal title="Confirm Action" bind:open={showSendEmailModal}>
@@ -45,16 +117,39 @@
 			{/each}
 		</div>
 		<div class="flex justify-end">
-			<Button color="light-yellow">Continue and Send Emails</Button>
+			<Button color="light-yellow" on:click={() => handleSigningSubmit()}
+				>Continue and Send Emails</Button
+			>
 		</div>
+	</div>
+</Modal>
+
+<Modal title="Sign Document" bind:open={showSignModal}>
+	<div class="flex flex-col gap-5">
+		<div>
+			<h1 class="text-lg text-gray-900 font-semibold">
+				To sign the document scan the QR with your Identity wallet
+			</h1>
+		</div>
+		<Qr data={qr}></Qr>
+		{#if signingComplete}
+			Signed ✅
+		{/if}
 	</div>
 </Modal>
 
 <div class="flex gap-5">
 	{#if step === 0}
-		<Step1 bind:docName bind:signingParties bind:emailContent></Step1>
+		<Step1
+			{isPdfUploading}
+			uploadHandler={uploadPdf}
+			bind:pdfFile
+			bind:docName
+			bind:signingParties
+			bind:emailContent
+		/>
 	{:else if step === 1}
-		<Step2></Step2>
+		<Step2 bind:pdfFile />
 	{/if}
 	<DocPreviewBar>
 		<div class="flex flex-col h-full justify-between">
@@ -117,10 +212,10 @@
 				</div>
 				<div class="flex gap-4 w-full">
 					<Button buttonClass="w-full" color="white"
-						>{step === 0 ? 'Save as Draft' : 'View Document'}</Button
+						>{step === 0 ? 'Save as Draft' : 'Cancel'}</Button
 					>
 					<Button buttonClass="w-full" color="yellow" on:click={handleContinue}
-						>{step === 0 ? 'Continue to Edit Document' : 'Send'}</Button
+						>{step === 0 ? 'Send' : 'Sign'}</Button
 					>
 				</div>
 			</div>

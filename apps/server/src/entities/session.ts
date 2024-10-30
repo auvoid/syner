@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, Relation } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, Relation } from 'typeorm';
 import { BaseEntity } from './base-entity';
 import { User } from './user';
 
@@ -11,5 +11,6 @@ export class Session extends BaseEntity {
   did: string;
 
   @ManyToOne(() => User, (e) => e.sessions, { onDelete: 'CASCADE' })
+  @JoinColumn()
   user: Relation<User>;
 }

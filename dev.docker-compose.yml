@@ -1,6 +1,6 @@
 services:
-  client:
-    container_name: client
+  syner-client:
+    container_name: syner-client
     networks:
       - host-bridge
     build:
@@ -14,17 +14,17 @@ services:
       watch:
         - action: sync
           path: ./apps/client
-          target: /usr/src/app/client
+          target: /usr/src/app/apps/client
           ignore:
             - node_modules
         - action: rebuild
           path: ./apps/client/package.json
     depends_on:
-      - server
-  server:
+      - syner-server
+  syner-server:
     networks:
       - host-bridge
-    container_name: server
+    container_name: syner-server
     build:
       context: .
       dockerfile: ./docker/dev/Dockerfile.server
@@ -34,7 +34,7 @@ services:
       watch:
         - action: sync
           path: ./apps/server
-          target: /usr/src/app/core-api
+          target: /usr/src/app/apps/server
           ignore:
             - node_modules
         - action: rebuild

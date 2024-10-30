@@ -11,7 +11,7 @@
     "build:client": "pnpm -F=client build",
     "build:server": "pnpm -F=server build",
     "server:migration:generate": "pnpm -F=server typeorm:generate",
-    "server:migration:migrate": "pnpm -F=apps/server typeorm:run",
+    "server:migration:migrate": "pnpm -F=server typeorm:run",
     "format": "pnpm -F=* format",
     "lint": "pnpm -F=* lint",
     "dev": "docker compose -f ./dev.docker-compose.yml up"
