@@ -38,6 +38,9 @@ export class User extends BaseEntity {
   @OneToMany(() => File, (e) => e.user, { onDelete: 'CASCADE' })
   files: File[];
 
+  @Column({ default: false })
+  verified: boolean;
+
   private tempPassword: string;
   @AfterLoad()
   private loadTempPassword(): void {

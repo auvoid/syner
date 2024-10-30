@@ -7,12 +7,14 @@ import { CredOfferService } from './credOffer.service';
 import { UsersModule } from '../users/users.module';
 import { ContainerModule } from '../container/container.module';
 import { SignatureService } from './signature.service';
+import { EmailModule } from '../email/email.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([SiopOffer, CredOffer, Signature]),
     forwardRef(() => UsersModule),
     forwardRef(() => ContainerModule),
+    forwardRef(() => EmailModule),
   ],
   controllers: [Oid4vcController],
   providers: [SiopOfferService, CredOfferService, SignatureService],

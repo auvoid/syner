@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   Res,
+  Headers,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { SessionsService } from './sessions.service';
@@ -27,6 +28,9 @@ import { UserSession } from '../../decorators';
 import { Session } from '../../entities';
 import { errors } from '../../errors';
 import type { Response } from 'express';
+import { createHmacSignature, verifyHmacSignature } from 'src/utils/hmac';
+import { wsServer } from 'src/main';
+import axios from 'axios';
 
 @Controller('users')
 export class UsersController {
@@ -53,11 +57,6 @@ export class UsersController {
   @Get()
   async getUser(@CurrentUser() user: User) {
     return user;
-  }
-
-  @Get('/session')
-  async getCurrentSession(@UserSession() session: Session) {
-    return session;
   }
 
   @Post('/login')
@@ -89,15 +88,65 @@ export class UsersController {
     };
   }
 
-  @IsAuthenticated()
-  @ApiCookieAuth()
-  @Get('verify-email')
-  async verifyEmail(@CurrentUser() user: User) {
-    const isAlreadyVerified = (await this.getCurrentUser(user)).emailVerified;
+  @Get('/session')
+  async getCurrentSessionInfo(
+    @UserSession() session: Session,
+    @CurrentUser() user: User,
+  ) {
+    return { session, user };
+  }
 
-    if (isAlreadyVerified)
-      throw new ConflictException(errors.users.ALREADY_VERIFIED);
-    await this.emailService.sendUserEmailVerification({ user });
+  @Get('/idv')
+  async attemptVerification(
+    @CurrentUser() user: User,
+    @UserSession() session: Session,
+  ) {
+    const veriffBody = {
+      verification: {
+        vendorData:
+          user && user.id ? `user::${user.id}` : `session::${session.id}`,
+      },
+    };
+    const signature = createHmacSignature(
+      veriffBody,
+      process.env.VERIFF_HMAC_KEY,
+    );
+    const { data: veriffSession } = await axios.post(
+      'https://stationapi.veriff.com/v1/sessions',
+      veriffBody,
+      {
+        headers: {
+          'X-HMAC-SIGNATURE': signature,
+          'X-AUTH-CLIENT': process.env.PUBLIC_VERIFF_KEY,
+        },
+      },
+    );
+    return veriffSession;
+  }
+
+  @Post('/idv')
+  async identityVerificationWebhook(
+    @Headers('X-HMAC-SIGNATURE') signature: string,
+    @Body() body: Record<string, any>,
+  ) {
+    const stateIdentifier = body.verification.vendorData;
+    if (!verifyHmacSignature(body, signature, process.env.VERIFF_HMAC_KEY))
+      throw new BadRequestException();
+    const affirmativeStatusTypes = [
+      'approved',
+      'declined',
+      'expired',
+      'abandoned',
+    ];
+    const [type, id] = stateIdentifier.split('::');
+    let approved = body.verification.status === 'approved';
+    if (type === 'user') {
+      await this.userService.findByIdAndUpdate(id, { verified: approved });
+    } else {
+      await this.sessionService.findByIdAndUpdate(id, { isValid: approved });
+    }
+
+    wsServer.broadcast(id, { idVerified: approved });
   }
 
   @IsAuthenticated()

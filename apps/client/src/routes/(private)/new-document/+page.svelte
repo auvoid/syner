@@ -14,6 +14,14 @@
 	import { createWebsocket } from '$lib/utils/websocket';
 	import { onMount } from 'svelte';
 	import { json } from '@sveltejs/kit';
+	import { PUBLIC_VERIFF_KEY } from '$env/static/public';
+	import { page } from '$app/stores';
+	import {
+		type EmbeddedOptions,
+		MESSAGES,
+		type VeriffFrameOptions,
+		createVeriffFrame
+	} from '@veriff/incontext-sdk';
 
 	let step = 0;
 	let docName: string;
@@ -23,6 +31,7 @@
 	let showSignModal: boolean = false;
 	let containerId: string;
 	let qr: string;
+	let requestIdVerificaiton = true;
 
 	$: signingComplete = false;
 
@@ -49,11 +58,46 @@
 			}
 			showSendEmailModal = true;
 		} else if (step === 1) {
+			const {
+				data: { user }
+			} = await apiClient.get('/users/session');
+			if (!user.verified) {
+				return (showSignModal = true);
+			}
+			requestIdVerificaiton = false;
 			const { data } = await apiClient.post(`/oid4vc/signature-session`, { containerId });
 			qr = data.uri;
 
 			showSignModal = true;
 		}
+	}
+
+	async function verifyUser() {
+		const {
+			data: { verification }
+		} = await apiClient.get('/users/idv');
+		createVeriffFrame({
+			url: verification.url,
+			onEvent: function (msg: MESSAGES) {
+				switch (msg) {
+					case MESSAGES.STARTED:
+						console.log('Verification started');
+						break;
+					case MESSAGES.SUBMITTED:
+						console.log('Verification submitted');
+						break;
+					case MESSAGES.FINISHED:
+						console.log('Verification finished');
+						break;
+					case MESSAGES.CANCELED:
+						console.log('Verification closed');
+						break;
+					case MESSAGES.RELOAD_REQUEST:
+						console.log('Verification reloaded');
+						break;
+				}
+			}
+		});
 	}
 
 	const uploadPdf = async () => {
@@ -98,6 +142,8 @@
 			if (data.container) {
 				console.log(data);
 				signingComplete = true;
+			} else if (data.idVerified) {
+				requestIdVerificaiton = false;
 			}
 		};
 	});
@@ -125,17 +171,28 @@
 </Modal>
 
 <Modal title="Sign Document" bind:open={showSignModal}>
-	<div class="flex flex-col gap-5">
-		<div>
-			<h1 class="text-lg text-gray-900 font-semibold">
-				To sign the document scan the QR with your Identity wallet
-			</h1>
+	{#if requestIdVerificaiton}
+		<div class="flex flex-col gap-5">
+			<div>
+				<h1 class="text-lg text-gray-900 font-semibold">
+					You need to undergo Identity Verification before you can sign this document
+				</h1>
+			</div>
+			<Button on:click={verifyUser}>Start Verification</Button>
 		</div>
-		<Qr data={qr}></Qr>
-		{#if signingComplete}
-			Signed ✅
-		{/if}
-	</div>
+	{:else}
+		<div class="flex flex-col gap-5">
+			<div>
+				<h1 class="text-lg text-gray-900 font-semibold">
+					To sign the document scan the QR with your Identity wallet
+				</h1>
+			</div>
+			<Qr data={qr}></Qr>
+			{#if signingComplete}
+				Signed ✅
+			{/if}
+		</div>
+	{/if}
 </Modal>
 
 <div class="flex gap-5">
