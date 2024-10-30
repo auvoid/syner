@@ -34,7 +34,7 @@
 	async function verifyUser() {
 		const {
 			data: { verification }
-		} = await apiClient.get('/users/idv');
+		} = await apiClient.get('/users/idv?override=session');
 		createVeriffFrame({
 			url: verification.url,
 			onEvent: function (msg: MESSAGES) {

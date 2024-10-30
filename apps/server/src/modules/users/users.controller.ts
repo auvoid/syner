@@ -8,6 +8,7 @@ import {
   Post,
   Res,
   Headers,
+  Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { SessionsService } from './sessions.service';
@@ -100,10 +101,11 @@ export class UsersController {
   async attemptVerification(
     @CurrentUser() user: User,
     @UserSession() session: Session,
+    @Query('override') override: 'user' | 'session' | null,
   ) {
     let vendorData: string;
 
-    if (user) {
+    if (user && override !== 'session') {
       vendorData = `user::${session.id}::${user.id}`;
     } else {
       vendorData = `session::${session.id}::null`;
