@@ -10,17 +10,11 @@ on:
 jobs:
   build:
 
-    runs-on: difhack
-
-    strategy:
-      matrix:
-        node-version: [18.x, 20.x, 22.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
+    runs-on: difhac
     steps:
     - uses: actions/checkout@v4
     - run: | 
-        rm -rf ~/syner
+        rm -rf ~/syner/*
         cp ./* ~/syner/
         cd ~/syner 
         docker compose -f ./dev.docker-compose.yml up --build
