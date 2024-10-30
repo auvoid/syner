@@ -101,10 +101,16 @@ export class UsersController {
     @CurrentUser() user: User,
     @UserSession() session: Session,
   ) {
+    let vendorData: string;
+
+    if (user) {
+      vendorData = `user::${session.id}::${user.id}`;
+    } else {
+      vendorData = `session::${session.id}::null`;
+    }
     const veriffBody = {
       verification: {
-        vendorData:
-          user && user.id ? `user::${user.id}` : `session::${session.id}`,
+        vendorData,
       },
     };
     const signature = createHmacSignature(
@@ -132,15 +138,17 @@ export class UsersController {
     const stateIdentifier = body.vendorData;
     if (!verifyHmacSignature(body, signature, process.env.VERIFF_HMAC_KEY))
       throw new BadRequestException();
-    const [type, id] = stateIdentifier.split('::');
+    const [type, sessionId, userId] = stateIdentifier.split('::');
     let approved = body.data.verification.status === 'approved';
     if (type === 'user') {
-      await this.userService.findByIdAndUpdate(id, { verified: approved });
+      await this.userService.findByIdAndUpdate(userId, { verified: approved });
     } else {
-      await this.sessionService.findByIdAndUpdate(id, { isValid: approved });
+      await this.sessionService.findByIdAndUpdate(sessionId, {
+        isValid: approved,
+      });
     }
 
-    wsServer.broadcast(id, { idVerified: approved });
+    wsServer.broadcast(sessionId, { idVerified: approved });
   }
 
   @IsAuthenticated()
