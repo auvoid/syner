@@ -7,11 +7,15 @@
 	import { goto } from '$app/navigation';
 
 	onMount(async () => {
-		await apiClient.get('/users').catch(() => {
+		const { data } = (await apiClient.get('/users').catch(() => {
 			addToast({ type: 'error', message: 'Login Error' });
 			goto('/login');
 			return { data: null };
-		});
+		})) as { data: { id: string } };
+
+		if (!data.id) {
+			goto('/login');
+		}
 	});
 </script>
 
