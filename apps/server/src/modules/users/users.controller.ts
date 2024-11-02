@@ -9,6 +9,7 @@ import {
   Res,
   Headers,
   Query,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { SessionsService } from './sessions.service';
@@ -57,7 +58,11 @@ export class UsersController {
 
   @Get()
   async getUser(@CurrentUser() user: User) {
-    return user;
+    if (user) {
+      return user;
+    } else {
+      throw new UnauthorizedException('Not logged in.');
+    }
   }
 
   @Post('/login')
