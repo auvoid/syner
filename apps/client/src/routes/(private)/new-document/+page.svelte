@@ -5,7 +5,11 @@
 	import Step1 from './steps/step1.svelte';
 	import Step2 from './steps/step2.svelte';
 	import Input from '$lib/components/ui/Input.svelte';
-	import { BarsOutline, ChevronLeftOutline } from 'flowbite-svelte-icons';
+	import {
+		ChevronLeftOutline,
+		CheckCircleSolid,
+		ExclamationCircleSolid
+	} from 'flowbite-svelte-icons';
 	import { goto } from '$app/navigation';
 	import { apiClient } from '$lib/axios/axios';
 	import type { AxiosResponse } from 'axios';
@@ -200,15 +204,17 @@
 			<Button on:click={verifyUser}>Start Verification</Button>
 		</div>
 	{:else}
-		<div class="flex flex-col gap-5">
-			<div>
-				<h1 class="text-lg text-gray-900 font-semibold">
-					To sign the document scan the QR with your Identity wallet
-				</h1>
-			</div>
-			<Qr data={qr}></Qr>
+		<div class="flex flex-col justify-center items-center">
 			{#if signingComplete}
-				Signed ✅
+				<CheckCircleSolid color="#F7D57E" class="h-24 w-24" />
+				Signed
+			{:else}
+				<div class="text-lg text-gray-900 font-semibold">
+					To sign the document scan the QR with your Identity wallet
+				</div>
+				<div>
+					<Qr data={qr}></Qr>
+				</div>
 			{/if}
 		</div>
 	{/if}
@@ -259,28 +265,33 @@
 					</div>
 				</div>
 			{:else if step === 1}
-				<div class="flex flex-col gap-4">
+				<div class="flex flex-col gap-3">
 					<div class="flex items-center justify-between">
 						<h1 class="font-bold text-2xl dark:text-white">Sign Document</h1>
 					</div>
-					<h2 class="font-bold text-lg">Signatures</h2>
-					{#if signedAlready || signingComplete}
-						<div class="text-gray-600 font-semibold">
-							{`You: ✅ Signed`}
-						</div>
-					{:else}
-						<div class="text-gray-800 font-bold">
-							{`You: 🕐 Pending`}
-						</div>
-					{/if}
-					{#each signingParties as invitee (invitee)}
-						<div class="text-gray-600 font-semibold">
-							{`${invitee}: ${signatures.includes(invitee) ? '✅ Signed' : '🕐 Pending'}`}
-						</div>
-					{/each}
 					{#if !signedAlready}
-						<p>Please take a look at the document and sign it by clicking the button below</p>
+						<h1 class="font-bold text-md dark:text-white">
+							Please take a look at the document and sign it by clicking the button below
+						</h1>
 					{/if}
+					<Card padding="sm">
+						{#if signedAlready || signingComplete}
+							<div class="text-gray-600 font-semibold">
+								{`You: ✅ Signed`}
+							</div>
+						{:else}
+							<div class="text-gray-800 font-bold">
+								{`You: 🕐 Pending`}
+							</div>
+						{/if}
+					</Card>
+					{#each signingParties as invitee (invitee)}
+						<Card padding="sm">
+							<div class="text-gray-500 font-semibold">
+								{`${invitee}: ${signatures.includes(invitee) ? '✅ Signed' : '🕐 Pending'}`}
+							</div>
+						</Card>
+					{/each}
 				</div>
 			{/if}
 			{#if !signedAlready}
@@ -294,8 +305,12 @@
 						>
 					</div>
 					<div class="flex gap-4 w-full">
-						<Button buttonClass="w-full" color="white"
-							>{step === 0 ? 'Save as Draft' : 'Cancel'}</Button
+						<Button
+							buttonClass="w-full"
+							color="white"
+							on:click={() => {
+								goto('/dashboard');
+							}}>Cancel</Button
 						>
 						<Button buttonClass="w-full" color="yellow" on:click={handleContinue}
 							>{step === 0 ? 'Send' : 'Sign'}</Button

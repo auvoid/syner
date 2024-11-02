@@ -3,7 +3,6 @@
 	import Input from '$lib/components/ui/Input.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
 	import Modal from 'flowbite-svelte/Modal.svelte';
-
 	import { Card } from 'flowbite-svelte';
 	import { CheckCircleSolid, ExclamationCircleSolid } from 'flowbite-svelte-icons';
 	import { goto } from '$app/navigation';

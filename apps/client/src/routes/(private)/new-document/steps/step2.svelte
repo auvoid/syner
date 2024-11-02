@@ -19,7 +19,7 @@
 <main class="w-full flex gap-5">
 	<div class="w-full flex gap-5">
 		<Card class="shadow-xl max-w-full h-[calc(100vh-130px)] flex flex-col gap-1">
-			<h1 class="text-3xl font-bold text-gray-700 mb-10">Preview Document</h1>
+			<h1 class="text-3xl font-bold text-gray-700 mb-4">Preview Document</h1>
 			{#if docUrl}
 				<div class="h-full w-full">
 					<div class="rounded h-full w-full overflow-hidden">
