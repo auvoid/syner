@@ -135,8 +135,8 @@ const config = {
 				brand: {
 					yellow: '#afd47e',
 					green: '#7EBBCD',
-					yellow_hover: '#DEC071',
-					yellow_light: '#F9E5AE',
+					yellow_hover: '#8db74e',
+					yellow_light: '#c4e1a3',
 					green_dark: '#71A6B5',
 					green_light: '#BEDDE7',
 					red_dark: '#80403F',

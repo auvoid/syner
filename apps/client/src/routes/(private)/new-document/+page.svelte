@@ -35,12 +35,9 @@
 	let docUrl: string;
 	let signedAlready = false;
 	let signatures: string[] = [];
-
-	$: signingComplete = false;
-
 	let pdfFile: FileList;
-	$: isPdfUploading = false;
 	let uploadedPdfId: string;
+	let fileName: undefined | string;
 
 	function handleGoBack() {
 		if (step === 0) {
@@ -55,7 +52,7 @@
 			if (!(signingParties.length > 0) || !(pdfFile.length > 0)) {
 				addToast({
 					type: 'error',
-					message: 'Fill signerfields and pdf pls.'
+					message: 'Fill signer fields and pdf please'
 				});
 				return;
 			}
@@ -166,6 +163,9 @@
 			}
 		};
 	});
+
+	$: signingComplete = false;
+	$: isPdfUploading = false;
 </script>
 
 <Modal title="Confirm Action" bind:open={showSendEmailModal}>
@@ -223,6 +223,7 @@
 			bind:docName
 			bind:signingParties
 			bind:emailContent
+			bind:fileName
 		/>
 	{:else if step === 1}
 		<Step2 bind:pdfFile {docUrl} />
@@ -233,7 +234,7 @@
 				<div class="flex flex-col gap-5">
 					<div class="flex flex-col">
 						<h3 class="font-sm font-semibold text-gray-700 dark:text-gray-400">Document Name</h3>
-						<p>{docName}</p>
+						<p>{docName ?? 'My New Document'}</p>
 					</div>
 					<div class="flex flex-col">
 						<h3 class="font-sm font-semibold text-gray-700 dark:text-gray-400">Signing Parties</h3>
@@ -242,15 +243,18 @@
 								<Li>{party}</Li>
 							</div>
 						{/each}
+						{#if signingParties.length === 0}
+							name@example.com
+						{/if}
 					</div>
 					<div>
 						<h3 class="font-sm font-semibold text-gray-700 dark:text-gray-400">PDF File</h3>
-						<div>MyPdfFile.pdf (file displayed and on click opens on screen)</div>
+						<div>{isPdfUploading ? 'PDF is uploading' : fileName ? fileName : 'my-doc.pdf'}</div>
 					</div>
 					<div>
 						<h3 class="font-sm font-semibold text-gray-700 dark:text-gray-400">Your Message</h3>
 						<p>
-							{emailContent}
+							{emailContent ?? 'Message to be sent'}
 						</p>
 					</div>
 				</div>

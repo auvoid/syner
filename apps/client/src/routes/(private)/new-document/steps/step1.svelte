@@ -30,10 +30,9 @@
 	export let emailContent: string;
 	export let pdfFile: FileList | undefined;
 	export let isPdfUploading: boolean;
-
 	export let uploadHandler: () => void | Promise<void>;
+	export let fileName: undefined | string;
 
-	let fileName: undefined | string;
 	const dropHandle = (event: DragEvent) => {
 		event.preventDefault();
 		if (event.dataTransfer?.items) {
@@ -58,7 +57,7 @@
 <main class="w-full flex gap-5">
 	<div class="w-full flex gap-5">
 		<Card class="shadow-xl max-w-full h-[calc(100vh-130px)]">
-			<h1 class="text-3xl font-bold text-gray-700 mb-10">New Document</h1>
+			<h1 class="text-3xl font-bold text-gray-700 mb-5">New Document</h1>
 			<div class="flex flex-col gap-5 mb-10">
 				<div class="flex gap-5 w-full">
 					<div class="w-full">
@@ -76,11 +75,13 @@
 							label="Add Signing Parties"
 							placeholder="name@example.com"
 							bind:value={signingParties}
+							helperText="Enter the emails of the signing parties"
 						/>
 					</div>
 				</div>
 				<div class="flex gap-5 w-full">
 					<div class="w-full">
+						<Label class="text-font-bold text-md mb-1">Upload Document to be signed</Label>
 						{#if !isPdfUploading}
 							<Dropzone
 								on:drop={dropHandle}
@@ -110,19 +111,21 @@
 								{/if}
 							</Dropzone>
 						{:else}
-							<p>Pdf is uploading...</p>
+							<p class="bg-gray-200 p-2 rounded-lg border border-gray-300">Pdf is uploading...</p>
 						{/if}
 					</div>
 					<div class="w-full">
 						<div class="future-disabled">
-							<Label for="input" class="text-font-bold text-md mb-1">Your Message</Label>
+							<Label for="input" class="text-font-bold text-md mb-1 text-gray-800"
+								>Your Message</Label
+							>
 							<Textarea
 								class="bg-gray-200"
 								placeholder="Write text here..."
 								rows={6}
 								bind:value={emailContent}
 							>
-								<Toolbar slot="header" embedded>
+								<Toolbar class="future-disabled" slot="header" embedded>
 									<ToolbarGroup>
 										<ToolbarButton name="Attach file"
 											><PaperClipOutline class="w-6 h-6 text-gray-500" /></ToolbarButton

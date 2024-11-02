@@ -49,35 +49,43 @@
 				<TableHeadCell></TableHeadCell>
 			</TableHead>
 			<TableBody>
-				{#each data as row (row.id)}
-					<TableBodyRow>
-						<TableBodyCell>{row.name}</TableBodyCell>
-						<TableBodyCell class="text-gray-500">{row.createdAt}</TableBodyCell>
-						<TableBodyCell>Not Completed</TableBodyCell>
-						<TableBodyCell
-							><Badge color="green">{row.invitees.length + 1 === row.signatures.length}</Badge
-							></TableBodyCell
-						>
-						<TableBodyCell>
-							<button
-								class="text-primary-500 hover:text-primary-600 dark:text-primary-400 dark:hover:text-primary-300"
+				{#if !data}
+					<TableBodyCell colspan={5}>
+						<div class="flex w-full flex-col items-center gap-4 px-10 py-[22px]">
+							<ExclamationCircleSolid class="h-[100px] w-[100px] dark:text-gray-700"></ExclamationCircleSolid>
+							<p>You don't have any document yet. Create your first Document.</p>
+						</div>
+					</TableBodyCell>
+				{:else if data}
+					{#each data as row (row.id)}
+						<TableBodyRow>
+							<TableBodyCell>{row.name}</TableBodyCell>
+							<TableBodyCell class="text-gray-500">{row.createdAt}</TableBodyCell>
+							<TableBodyCell>Not Completed</TableBodyCell>
+							<TableBodyCell
+								><Badge color="green">{row.invitees.length + 1 === row.signatures.length}</Badge
+								></TableBodyCell
 							>
-								<DotsHorizontalOutline class="h-5 w-5 text-gray-800 dark:text-white" />
-								<Dropdown class="py-2">
-									<DropdownItem on:click={() => goto(`/new-document?id=${row.id}`)}>View Document</DropdownItem>
-								</Dropdown>
-							</button>
-						</TableBodyCell>
-					</TableBodyRow>
-				{/each}
+							<TableBodyCell>
+								<button
+									class="text-primary-500 hover:text-primary-600 dark:text-primary-400 dark:hover:text-primary-300"
+								>
+									<DotsHorizontalOutline class="h-5 w-5 text-gray-800 dark:text-white" />
+									<Dropdown class="py-2">
+										<DropdownItem on:click={() => goto(`/new-document?id=${row.id}`)}>View Document</DropdownItem>
+									</Dropdown>
+								</button>
+							</TableBodyCell>
+						</TableBodyRow>
+					{/each}
+				{/if}
 			</TableBody>
 		</Table>
 	</Card>
-
 	<div>
 		<DocPreviewBar>
 			{#if !selectedDoc}
-				<div class="flex flex-col h-full justify-between mr-14">
+				<div class="flex flex-col h-full justify-between">
 					<div class="flex flex-col gap-4">
 						<div class="flex items-center justify-between">
 							<h1 class="font-bold text-2xl dark:text-white">Document Name</h1>
