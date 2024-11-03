@@ -24,7 +24,7 @@
 			break;
 		case 'light-yellow':
 			buttonClass +=
-				' bg-brand-yellow_light text-gray-800 border-[1px] hover:bg-brand-yellow focus:ring-0 border-yellow-300';
+				' bg-brand-yellow_light text-gray-800 border-[1px] hover:bg-brand-yellow focus:ring-0 border-green-300';
 			break;
 		default:
 			buttonClass += '';

@@ -7,7 +7,7 @@
 </script>
 
 <header
-	class="fixed z-[10] flex h-16 w-screen justify-between items-center border-b-[1px] gap-3 border-gray-200 bg-white p-2 pl-3 shadow-lg border px-5"
+	class="fixed flex h-16 w-screen justify-between items-center border-b-[1px] gap-3 border-gray-200 bg-white p-2 pl-3 shadow-lg border px-5"
 >
 	<div class="flex gap-2 items-center">
 		<div class="h-full">
@@ -18,6 +18,7 @@
 	{#if !isPublic}
 		<div class="w-2/5">
 			<Search
+				disabled
 				class="w-full text-ellipsis rounded-lg py-[12px] focus:border-brand-green focus:ring-brand-green"
 				size="md"
 			></Search>
