@@ -55,13 +55,6 @@
 	};
 
 	const validateEnteredEmail: (...args: any[]) => boolean = (...args: any[]) => {
-		if (/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(args[0])) {
-			addToast({
-				type: "error",
-				message: "Invalid Email"
-			})
-			return false
-		}
 		if ($user && args[0] === $user.email) {
 			addToast({
 				type: 'error',
