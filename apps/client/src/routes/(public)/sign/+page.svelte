@@ -150,7 +150,7 @@
 			<div class="flex flex-col h-full justify-between w-full">
 				<div class="flex flex-col gap-4">
 					<div class="flex items-center justify-between">
-						<h1 class="font-bold text-2xl dark:text-white">Sign Document</h1>
+						<h1 class="font-bold text-2xl">Sign Document</h1>
 					</div>
 					<h2 class="font-bold text-lg">Signatures</h2>
 					{#if signedAlready || signingComplete}

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Loading from '$lib/components/ui/Loading.svelte';
 	import { Card } from 'flowbite-svelte';
 
 	export let pdfFile: FileList | undefined;
@@ -27,7 +28,7 @@
 					</div>
 				</div>
 			{:else}
-				<p>Loading PDF...</p>
+				<Loading></Loading>
 			{/if}
 		</Card>
 	</div>

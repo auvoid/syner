@@ -95,12 +95,10 @@
 							>
 								<UploadOutline size="xl"></UploadOutline>
 								{#if !pdfFile}
-									<p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
+									<p class="mb-2 text-sm text-gray-500">
 										<span class="font-semibold">Click to upload</span> or drag and drop
 									</p>
-									<p class="text-xs text-gray-500 dark:text-gray-400">
-										PDF Format Only (File Size: 30MB)
-									</p>
+									<p class="text-xs text-gray-500">PDF Format Only (File Size: 30MB)</p>
 								{:else}
 									<p>{fileName}</p>
 									<Button
@@ -114,7 +112,7 @@
 							<p class="bg-gray-200 p-2 rounded-lg border border-gray-300">Pdf is uploading...</p>
 						{/if}
 					</div>
-					<div class="w-full">
+					<div class="w-full future-disabled">
 						<div class="future-disabled">
 							<Label for="input" class="text-font-bold text-md mb-1 text-gray-800"
 								>Your Message</Label
@@ -124,6 +122,7 @@
 								placeholder="Write text here..."
 								rows={6}
 								bind:value={emailContent}
+								disabled
 							>
 								<Toolbar class="future-disabled" slot="header" embedded>
 									<ToolbarGroup>
