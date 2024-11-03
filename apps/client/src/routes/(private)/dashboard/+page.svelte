@@ -95,6 +95,9 @@
 							<div class="flex w-full flex-col items-center gap-4 px-10 py-[22px]">
 								<ExclamationCircleSolid class="h-[100px] w-[100px]"></ExclamationCircleSolid>
 								<p>You don't have any document yet. Create your first Document.</p>
+								<Button color="yellow" on on:click={() => goto('/new-document')}
+									>Create New Document</Button
+								>
 							</div>
 						</TableBodyCell>
 					{/if}
