@@ -16,21 +16,26 @@
 		if (!data.id) {
 			goto('/login');
 		}
-		console.log(data)
+		console.log(data);
 		user.set(data);
 	});
 </script>
 
 <div class="w-full">
 	<div>
-		<Header></Header>
+		<Header />
 	</div>
-	<div class="flex gap-5 fixed w-full mt-[88px]">
+	<div class="gap-5 fixed w-full mt-[88px] lg:flex hidden">
 		<div>
-			<Sidebar></Sidebar>
+			<Sidebar />
 		</div>
 		<div class="w-full me-5">
 			<slot></slot>
 		</div>
+	</div>
+	<div
+		class="flex h-screen w-screen items-center justify-center text-center dark:text-white lg:hidden"
+	>
+		This content currently does not support your screen.
 	</div>
 </div>

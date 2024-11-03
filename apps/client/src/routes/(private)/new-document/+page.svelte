@@ -1,10 +1,10 @@
 <script lang="ts">
 	import DocPreviewBar from '$lib/components/fragments/DocPreviewBar.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
-	import { Card, Li, Modal } from 'flowbite-svelte';
+	import { Card, Li, Modal, Tooltip } from 'flowbite-svelte';
 	import Step1 from './steps/step1.svelte';
 	import Step2 from './steps/step2.svelte';
-	import { ChevronLeftOutline, CheckCircleSolid } from 'flowbite-svelte-icons';
+	import { CheckCircleSolid, ExclamationCircleSolid } from 'flowbite-svelte-icons';
 	import { goto } from '$app/navigation';
 	import { apiClient } from '$lib/axios/axios';
 	import type { AxiosResponse } from 'axios';
@@ -31,7 +31,6 @@
 	let containerId: string;
 	let qr: string;
 	let requestIdVerificaiton = true;
-	let editingView = false;
 	let docUrl: string;
 	let signedAlready = false;
 	let signatures: string[] = [];
@@ -39,14 +38,6 @@
 	let uploadedPdfId: string;
 	let fileName: undefined | string;
 	let loading = false;
-
-	function handleGoBack() {
-		if (step === 0 || !signedAlready) {
-			goto('/dashboard');
-		} else {
-			step--;
-		}
-	}
 
 	async function handleContinue() {
 		if (step === 0) {
@@ -99,6 +90,7 @@
 				}
 			}
 		});
+		showSignModal = false;
 	}
 
 	const uploadPdf = async () => {
@@ -174,7 +166,7 @@
 	<div class="flex flex-col gap-5">
 		<div>
 			<h1 class="text-lg text-gray-900 font-semibold">
-				Are you sure you want to send the doc to the following Signing Parties?
+				Are you sure you want to send the document to the following Signing Parties?
 			</h1>
 			<p class="text-sm">(Please re-check all the details before sending the document.)</p>
 			{#each signingParties as party}
@@ -260,9 +252,7 @@
 						</div>
 						<div>
 							<h3 class="font-sm font-semibold text-gray-700">Your Message</h3>
-							<p>
-								{emailContent ?? 'Message to be sent'}
-							</p>
+							<p>Hello, Please sign this document.</p>
 						</div>
 					</div>
 				{:else if step === 1}
@@ -276,40 +266,58 @@
 							</h1>
 						{/if}
 						<Card padding="sm">
-							<div class="text-gray-800 font-bold flex justify-between items-center">
-								You: {signedAlready || signingComplete ? '✅ Signed' : '🕐 Pending'}
+							<div class="flex justify-between items-center">
+								<div class="text-gray-800 font-bold">You</div>
+								<div class="flex gap-1 items-center font-bold text-gray-800">
+									{#if signedAlready || signingComplete}
+										<CheckCircleSolid class="text-brand-yellow"></CheckCircleSolid>
+										<Tooltip class="border border-gray-100" type="light"
+											>You have signed this document</Tooltip
+										>
+									{:else}
+										<ExclamationCircleSolid class="text-red-400"></ExclamationCircleSolid>
+										<Tooltip class="border border-gray-100" type="light">Signature Pending</Tooltip>
+									{/if}
+									{signedAlready || signingComplete ? 'Signed' : 'Pending'}
+								</div>
 							</div>
 						</Card>
 						{#each signingParties as invitee (invitee)}
 							<Card padding="sm">
-								<div class="text-gray-500 font-semibold">
-									{`${invitee}: ${signatures.includes(invitee) ? '✅ Signed' : '🕐 Pending'}`}
+								<div class="flex justify-between items-center opacity-40">
+									<div class="text-gray-800 font-semibold">{`${invitee}`}</div>
+									<div class="flex gap-1 items-center text-gray-800 font-semibold">
+										{#if signatures.includes(invitee)}
+											<CheckCircleSolid class="text-brand-yellow"></CheckCircleSolid>
+										{:else}
+											<ExclamationCircleSolid class="text-red-400"></ExclamationCircleSolid>
+										{/if}
+										{`${signatures.includes(invitee) ? 'Signed' : 'Pending'}`}
+									</div>
 								</div>
 							</Card>
+							{#if signatures.includes(invitee)}
+								<Tooltip class="border border-gray-100" type="light"
+									>Document has been signed.</Tooltip
+								>
+							{:else}
+								<Tooltip class="border border-gray-100" type="light">Signature Pending</Tooltip>
+							{/if}
 						{/each}
 					</div>
 				{/if}
 				{#if !signedAlready}
-					<div class="flex flex-col gap-2">
-						<div>
-							<!-- svelte-ignore a11y_click_events_have_key_events -->
-							<!-- svelte-ignore a11y_no_static_element_interactions -->
-							<small class="flex w-full cursor-pointer justify-end" on:click={handleGoBack}
-								><ChevronLeftOutline></ChevronLeftOutline>Go Back</small
-							>
-						</div>
-						<div class="flex gap-4 w-full">
-							<Button
-								buttonClass="w-full"
-								color="white"
-								on:click={() => {
-									goto('/dashboard');
-								}}>Cancel</Button
-							>
-							<Button buttonClass="w-full" color="yellow" on:click={handleContinue}
-								>{step === 0 ? 'Continue' : 'Sign'}</Button
-							>
-						</div>
+					<div class="flex gap-4 w-full">
+						<Button
+							buttonClass="w-full"
+							color="white"
+							on:click={() => {
+								goto('/dashboard');
+							}}>Cancel</Button
+						>
+						<Button buttonClass="w-full" color="yellow" on:click={handleContinue}
+							>{step === 0 ? 'Continue' : 'Sign'}</Button
+						>
 					</div>
 				{/if}
 			{/if}

@@ -14,15 +14,14 @@
 	import { PUBLIC_VERIFF_KEY } from '$env/static/public';
 	import Button from '$lib/components/ui/Button.svelte';
 	import DocPreviewBar from '$lib/components/fragments/DocPreviewBar.svelte';
-	import { Card, Li, Modal } from 'flowbite-svelte';
+	import { Card, Li, Modal, Tooltip } from 'flowbite-svelte';
 	import Header from '$lib/components/fragments/Header.svelte';
+	import Loading from '$lib/components/ui/Loading.svelte';
+	import { CheckCircleSolid, ExclamationCircleSolid } from 'flowbite-svelte-icons';
 
-	$: signingComplete = false;
-	$: docUrl = '';
 	let showSignModal = false;
 	let requestIdVerificaiton = true;
 	let userEmail: string;
-
 	let qr: string;
 	let signingParties: string[];
 	let signatures: string[];
@@ -30,6 +29,7 @@
 	let containerId: string;
 	let accessToken: string;
 	let signedAlready = false;
+	let loading = false;
 
 	async function verifyUser() {
 		const {
@@ -88,6 +88,7 @@
 				requestIdVerificaiton = false;
 			}
 		};
+		loading = true;
 		const {
 			data: { session }
 		} = await apiClient.get('/users/session');
@@ -105,7 +106,11 @@
 		signatures = doc.data.container.signatures.map((s) => s.email);
 		signedAlready = signatures.includes(userEmail);
 		docUrl = (await apiClient.get(`/upload?cid=${doc.data.container.files[0].cid}`)).data;
+		loading = false;
 	});
+
+	$: signingComplete = false;
+	$: docUrl = '';
 </script>
 
 <Modal title="Sign Document" bind:open={showSignModal}>
@@ -133,44 +138,74 @@
 	{/if}
 </Modal>
 
-<div class="w-screen border-box p-10 py-20">
-	<div class="flex gap-5 w-full justify-between">
-		<Card class="min-w-[70%]">
-			<div class="flex gap-2 flex-col h-full mb-4">
-				{#if docUrl.length > 0}
-					<div class="rounded h-full w-full overflow-hidden">
-						<embed src={docUrl} width="100%" height="100%" type="application/pdf" />
-					</div>
-				{:else}
-					Loading pdf.
-				{/if}
-			</div>
-		</Card>
-		<DocPreviewBar>
-			<div class="flex flex-col h-full justify-between w-full">
-				<div class="flex flex-col gap-4">
+<div class="gap-5 fixed w-full mt-[88px] lg:flex hidden ml-5">
+	<Card class="min-w-[65%]">
+		<div class="flex gap-2 flex-col h-full">
+			<h1 class="text-3xl font-bold text-gray-700 mb-2">Document Preview</h1>
+			{#if docUrl.length > 0}
+				<div class="rounded h-full w-full overflow-hidden">
+					<embed src={docUrl} width="100%" height="100%" type="application/pdf" />
+				</div>
+			{:else}
+				<Loading></Loading>
+			{/if}
+		</div>
+	</Card>
+	<DocPreviewBar>
+		<div class="flex flex-col h-full justify-between w-full">
+			{#if loading}
+				<Loading></Loading>
+			{:else}
+				<div class="flex flex-col gap-3">
 					<div class="flex items-center justify-between">
 						<h1 class="font-bold text-2xl">Sign Document</h1>
 					</div>
-					<h2 class="font-bold text-lg">Signatures</h2>
-					{#if signedAlready || signingComplete}
-						<div class="text-gray-600 font-semibold">
-							{`You: ✅ Signed`}
-						</div>
-					{:else}
-						<div class="text-gray-800 font-bold">
-							{`You: 🕐 Pending`}
-						</div>
-					{/if}
-
-					{#each signingParties as invitee (invitee)}
-						<div class="text-gray-600 font-semibold">
-							{`${invitee}: ${signatures.includes(invitee) ? '✅ Signed' : '🕐 Pending'}`}
-						</div>
-					{/each}
 					{#if !signedAlready}
-						<p>Please take a look at the document and sign it by clicking the button below</p>
+						<h1 class="font-bold text-md">
+							Please take a look at the document and sign it by clicking the button below
+						</h1>
 					{/if}
+					<Card padding="sm">
+						<div class="flex justify-between items-center">
+							<div class="text-gray-800 font-bold">You</div>
+							<div class="flex gap-1 items-center font-bold text-gray-800">
+								{#if signedAlready || signingComplete}
+									<CheckCircleSolid class="text-brand-yellow"></CheckCircleSolid>
+									<Tooltip class="border border-gray-100" type="light"
+										>You have signed this document</Tooltip
+									>
+								{:else}
+									<ExclamationCircleSolid class="text-red-400"></ExclamationCircleSolid>
+									<Tooltip class="border border-gray-100" type="light"
+										>Signature Pending. Please Sign.</Tooltip
+									>
+								{/if}
+								{signedAlready || signingComplete ? 'Signed' : 'Pending'}
+							</div>
+						</div>
+					</Card>
+					{#each signingParties as invitee (invitee)}
+						<Card padding="sm">
+							<div class="flex justify-between items-center opacity-40">
+								<div class="text-gray-800 font-semibold">{`${invitee}`}</div>
+								<div class="flex gap-1 items-center text-gray-800 font-semibold">
+									{#if signatures.includes(invitee)}
+										<CheckCircleSolid class="text-brand-yellow"></CheckCircleSolid>
+									{:else}
+										<ExclamationCircleSolid class="text-red-400"></ExclamationCircleSolid>
+									{/if}
+									{`${signatures.includes(invitee) ? 'Signed' : 'Pending'}`}
+								</div>
+							</div>
+						</Card>
+						{#if signatures.includes(invitee)}
+							<Tooltip class="border border-gray-100" type="light"
+								>Document has been signed.</Tooltip
+							>
+						{:else}
+							<Tooltip class="border border-gray-100" type="light">Signature Pending</Tooltip>
+						{/if}
+					{/each}
 				</div>
 				{#if !signedAlready && !signingComplete}
 					<div class="flex flex-col gap-2">
@@ -181,7 +216,12 @@
 						</div>
 					</div>
 				{/if}
-			</div>
-		</DocPreviewBar>
-	</div>
+			{/if}
+		</div>
+	</DocPreviewBar>
+</div>
+<div
+	class="flex h-screen w-screen items-center justify-center text-center dark:text-white lg:hidden"
+>
+	This content currently does not support your screen.
 </div>
