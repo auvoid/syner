@@ -79,8 +79,22 @@ export class EmailService {
       '/images/Logo.png',
       process.env.PUBLIC_CLIENT_URI,
     ).toString();
-
     emails.forEach(async (email) => {
+      const token = jwt.sign(
+        {
+          scope: 'signer-viewer',
+          context: 'external',
+          email,
+          containerId,
+        },
+        process.env.SESSION_SECRET,
+        {
+          expiresIn: '73050d',
+        },
+      );
+      const viewerLink = `
+        ${process.env.PUBLIC_CLIENT_URI}/sign?token=${token}
+      `;
       const message = {
         from: 'Syner <no-reply@auvo.io>',
         to: email,
@@ -103,6 +117,20 @@ export class EmailService {
               </td>
             </tr>
           </table>
+          <p>Please ciew document by clicking the button below!</p>
+          <table width="100%" border="0" cellspacing="0" cellpadding="0">
+            <tr>
+              <td style="text-align: center;">
+                <center>
+                  <a href="${viewerLink}" style="text-decoration: none">
+                    <button style="padding: 12px 25px; display: block; text-decoration: none; color: #3d3d3d; background: #afd47e; width: fit-content; border-radius: 5px; border: none;">View Document</button>
+                  </a>
+                </center>
+              </td>
+            </tr>
+          </table>
+          <p>If the button does not work, please click on the link below</p>
+          <p>${viewerLink}</p>
         </div>
         </body>
         </html>
