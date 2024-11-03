@@ -52,7 +52,7 @@ export class EmailService {
             <td style="text-align: center;">
               <center>
                 <a href="${verificationLink}" style="text-decoration: none">
-                  <button style="padding: 12px 25px; display: block; text-decoration: none; color: #3d3d3d; background: #DEC071; width: fit-content; border-radius: 5px; border: none;">Sign Document</button>
+                  <button style="padding: 12px 25px; display: block; text-decoration: none; color: #3d3d3d; background: #afd47e; width: fit-content; border-radius: 5px; border: none;">Sign Document</button>
                 </a>
               </center>
             </td>

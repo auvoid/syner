@@ -4,8 +4,7 @@
 	import { Card, Li, Modal } from 'flowbite-svelte';
 	import Step1 from './steps/step1.svelte';
 	import Step2 from './steps/step2.svelte';
-	import Input from '$lib/components/ui/Input.svelte';
-	import { BarsOutline, ChevronLeftOutline } from 'flowbite-svelte-icons';
+	import { ChevronLeftOutline, CheckCircleSolid } from 'flowbite-svelte-icons';
 	import { goto } from '$app/navigation';
 	import { apiClient } from '$lib/axios/axios';
 	import type { AxiosResponse } from 'axios';
@@ -21,6 +20,7 @@
 		type VeriffFrameOptions,
 		createVeriffFrame
 	} from '@veriff/incontext-sdk';
+	import Loading from '$lib/components/ui/Loading.svelte';
 
 	let step = 0;
 	let docName: string;
@@ -35,15 +35,13 @@
 	let docUrl: string;
 	let signedAlready = false;
 	let signatures: string[] = [];
-
-	$: signingComplete = false;
-
 	let pdfFile: FileList;
-	$: isPdfUploading = false;
 	let uploadedPdfId: string;
+	let fileName: undefined | string;
+	let loading = false;
 
 	function handleGoBack() {
-		if (step === 0) {
+		if (step === 0 || !signedAlready) {
 			goto('/dashboard');
 		} else {
 			step--;
@@ -55,7 +53,7 @@
 			if (!(signingParties.length > 0) || !(pdfFile.length > 0)) {
 				addToast({
 					type: 'error',
-					message: 'Fill signerfields and pdf pls.'
+					message: 'Fill signer fields and pdf please'
 				});
 				return;
 			}
@@ -141,18 +139,19 @@
 		const urlParams = new URLSearchParams($page.url.search);
 		const urlContainerId = urlParams.get('id');
 		if (urlContainerId) {
-			const { data } = await apiClient.get(`/container/${urlContainerId}`);
+			loading = true;
 			step = 1;
+			const { data } = await apiClient.get(`/container/${urlContainerId}`);
 			docName = data.name;
 			containerId = data.id;
 			signingParties = data.invitees;
 			signatures = data.signatures.map((s) => s.email);
-
 			const {
 				data: { user }
 			} = await apiClient.get('/users/session');
 			signedAlready = data.signatures.find((s) => s.email === user.email);
 			docUrl = (await apiClient.get(`/upload?cid=${data.files[0].cid}`)).data;
+			loading = false;
 		}
 		const ws = createWebsocket();
 		ws.onmessage = async (event) => {
@@ -166,6 +165,9 @@
 			}
 		};
 	});
+
+	$: signingComplete = false;
+	$: isPdfUploading = false;
 </script>
 
 <Modal title="Confirm Action" bind:open={showSendEmailModal}>
@@ -200,15 +202,17 @@
 			<Button on:click={verifyUser}>Start Verification</Button>
 		</div>
 	{:else}
-		<div class="flex flex-col gap-5">
-			<div>
-				<h1 class="text-lg text-gray-900 font-semibold">
-					To sign the document scan the QR with your Identity wallet
-				</h1>
-			</div>
-			<Qr data={qr}></Qr>
+		<div class="flex flex-col justify-center items-center">
 			{#if signingComplete}
-				Signed ✅
+				<CheckCircleSolid color="#F7D57E" class="h-24 w-24" />
+				Signed
+			{:else}
+				<div class="text-lg text-gray-900 font-semibold">
+					To sign the document scan the QR with your Identity wallet
+				</div>
+				<div>
+					<Qr data={qr}></Qr>
+				</div>
 			{/if}
 		</div>
 	{/if}
@@ -223,81 +227,91 @@
 			bind:docName
 			bind:signingParties
 			bind:emailContent
+			bind:fileName
 		/>
 	{:else if step === 1}
 		<Step2 bind:pdfFile {docUrl} />
 	{/if}
 	<DocPreviewBar>
 		<div class="flex flex-col h-full justify-between">
-			{#if step === 0}
-				<div class="flex flex-col gap-5">
-					<div class="flex flex-col">
-						<h3 class="font-sm font-semibold text-gray-700 dark:text-gray-400">Document Name</h3>
-						<p>{docName}</p>
+			{#if loading}
+				<Loading></Loading>
+			{:else}
+				{#if step === 0}
+					<div class="flex flex-col gap-5">
+						<div class="flex flex-col">
+							<h3 class="font-sm font-semibold text-gray-700">Document Name</h3>
+							<p>{docName ?? 'My New Document'}</p>
+						</div>
+						<div class="flex flex-col">
+							<h3 class="font-sm font-semibold text-gray-700">Signing Parties</h3>
+							{#each signingParties as party}
+								<div>
+									<Li>{party}</Li>
+								</div>
+							{/each}
+							{#if signingParties.length === 0}
+								name@example.com
+							{/if}
+						</div>
+						<div>
+							<h3 class="font-sm font-semibold text-gray-700">PDF File</h3>
+							<div>{isPdfUploading ? 'PDF is uploading' : fileName ? fileName : 'my-doc.pdf'}</div>
+						</div>
+						<div>
+							<h3 class="font-sm font-semibold text-gray-700">Your Message</h3>
+							<p>
+								{emailContent ?? 'Message to be sent'}
+							</p>
+						</div>
 					</div>
-					<div class="flex flex-col">
-						<h3 class="font-sm font-semibold text-gray-700 dark:text-gray-400">Signing Parties</h3>
-						{#each signingParties as party}
-							<div>
-								<Li>{party}</Li>
+				{:else if step === 1}
+					<div class="flex flex-col gap-3">
+						<div class="flex items-center justify-between">
+							<h1 class="font-bold text-2xl">Sign Document</h1>
+						</div>
+						{#if !signedAlready}
+							<h1 class="font-bold text-md">
+								Please take a look at the document and sign it by clicking the button below
+							</h1>
+						{/if}
+						<Card padding="sm">
+							<div class="text-gray-800 font-bold flex justify-between items-center">
+								You: {signedAlready || signingComplete ? '✅ Signed' : '🕐 Pending'}
 							</div>
+						</Card>
+						{#each signingParties as invitee (invitee)}
+							<Card padding="sm">
+								<div class="text-gray-500 font-semibold">
+									{`${invitee}: ${signatures.includes(invitee) ? '✅ Signed' : '🕐 Pending'}`}
+								</div>
+							</Card>
 						{/each}
 					</div>
-					<div>
-						<h3 class="font-sm font-semibold text-gray-700 dark:text-gray-400">PDF File</h3>
-						<div>MyPdfFile.pdf (file displayed and on click opens on screen)</div>
-					</div>
-					<div>
-						<h3 class="font-sm font-semibold text-gray-700 dark:text-gray-400">Your Message</h3>
-						<p>
-							{emailContent}
-						</p>
-					</div>
-				</div>
-			{:else if step === 1}
-				<div class="flex flex-col gap-4">
-					<div class="flex items-center justify-between">
-						<h1 class="font-bold text-2xl dark:text-white">Sign Document</h1>
-					</div>
-					<h2 class="font-bold text-lg">Signatures</h2>
-					{#if signedAlready || signingComplete}
-						<div class="text-gray-600 font-semibold">
-							{`You: ✅ Signed`}
+				{/if}
+				{#if !signedAlready}
+					<div class="flex flex-col gap-2">
+						<div>
+							<!-- svelte-ignore a11y_click_events_have_key_events -->
+							<!-- svelte-ignore a11y_no_static_element_interactions -->
+							<small class="flex w-full cursor-pointer justify-end" on:click={handleGoBack}
+								><ChevronLeftOutline></ChevronLeftOutline>Go Back</small
+							>
 						</div>
-					{:else}
-						<div class="text-gray-800 font-bold">
-							{`You: 🕐 Pending`}
+						<div class="flex gap-4 w-full">
+							<Button
+								buttonClass="w-full"
+								color="white"
+								on:click={() => {
+									goto('/dashboard');
+								}}>Cancel</Button
+							>
+							<Button buttonClass="w-full" color="yellow" on:click={handleContinue}
+								>{step === 0 ? 'Continue' : 'Sign'}</Button
+							>
 						</div>
-					{/if}
-					{#each signingParties as invitee (invitee)}
-						<div class="text-gray-600 font-semibold">
-							{`${invitee}: ${signatures.includes(invitee) ? '✅ Signed' : '🕐 Pending'}`}
-						</div>
-					{/each}
-					{#if !signedAlready}
-						<p>Please take a look at the document and sign it by clicking the button below</p>
-					{/if}
-				</div>
-			{/if}
-			{#if !signedAlready}
-				<div class="flex flex-col gap-2">
-					<div>
-						<!-- svelte-ignore a11y_click_events_have_key_events -->
-						<!-- svelte-ignore a11y_no_static_element_interactions -->
-						<small
-							class="flex w-full cursor-pointer justify-end dark:text-white"
-							on:click={handleGoBack}><ChevronLeftOutline></ChevronLeftOutline>Go Back</small
-						>
 					</div>
-					<div class="flex gap-4 w-full">
-						<Button buttonClass="w-full" color="white"
-							>{step === 0 ? 'Save as Draft' : 'Cancel'}</Button
-						>
-						<Button buttonClass="w-full" color="yellow" on:click={handleContinue}
-							>{step === 0 ? 'Send' : 'Sign'}</Button
-						>
-					</div>
-				</div>
+				{/if}
 			{/if}
 		</div>
 	</DocPreviewBar>
