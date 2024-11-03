@@ -24,6 +24,9 @@
 		UploadOutline
 	} from 'flowbite-svelte-icons';
 	import Button from '$lib/components/ui/Button.svelte';
+	import { user } from '$lib/store/store';
+	import { addToast } from '../../../store';
+	import { error } from '@sveltejs/kit';
 
 	export let docName: string;
 	export let signingParties: string[];
@@ -51,6 +54,17 @@
 		uploadHandler();
 	};
 
+	const validateEnteredEmail: (...args: any[]) => boolean = (...args: any[]) => {
+		if ($user && args[0] === $user.email) {
+			addToast({
+				type: 'error',
+				message: "You can't add your own email as a signee in this field."
+			});
+			return false;
+		}
+		return true;
+	};
+
 	$: fileName = pdfFile && pdfFile[0].name;
 </script>
 
@@ -76,6 +90,7 @@
 							placeholder="name@example.com"
 							bind:value={signingParties}
 							helperText="Enter the emails of the signing parties"
+							validation={validateEnteredEmail}
 						/>
 					</div>
 				</div>

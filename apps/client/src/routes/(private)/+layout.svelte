@@ -5,6 +5,7 @@
 	import { onMount } from 'svelte';
 	import { addToast } from '../store';
 	import { goto } from '$app/navigation';
+	import { user } from '$lib/store/store';
 
 	onMount(async () => {
 		const { data } = (await apiClient.get('/users').catch(() => {
@@ -12,10 +13,11 @@
 			goto('/login');
 			return { data: null };
 		})) as { data: { id: string } };
-
 		if (!data.id) {
 			goto('/login');
 		}
+		console.log(data)
+		user.set(data);
 	});
 </script>
 
