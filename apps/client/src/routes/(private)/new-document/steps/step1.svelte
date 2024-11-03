@@ -55,12 +55,26 @@
 	};
 
 	const validateEnteredEmail: (...args: any[]) => boolean = (...args: any[]) => {
+		if (/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(args[0])) {
+			addToast({
+				type: "error",
+				message: "Invalid Email"
+			})
+			return false
+		}
 		if ($user && args[0] === $user.email) {
 			addToast({
 				type: 'error',
 				message: "You can't add your own email as a signee in this field."
-			});
-			return false;
+			})
+			return false
+		} 
+		if (signingParties.includes(args[0])) {
+			addToast({
+				type: "error",
+				message: "Can't add duplicate mails"
+			})
+			return false
 		}
 		return true;
 	};
@@ -91,6 +105,7 @@
 							bind:value={signingParties}
 							helperText="Enter the emails of the signing parties"
 							validation={validateEnteredEmail}
+							allowDuplicates={false}
 						/>
 					</div>
 				</div>

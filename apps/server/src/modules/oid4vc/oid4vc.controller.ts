@@ -23,20 +23,13 @@ import { IdentityService } from '../../services/identity.service';
 import { UserSession } from '../../decorators/UserSession';
 import { Session, User } from '../../entities';
 import { SiopOfferService } from './siopOffer.service';
-import { CredOfferService } from './credOffer.service';
-import { UsersService } from '../users/users.service';
-import { SessionsService } from '../users/sessions.service';
 import {
   SiopOfferDTO,
   TokenResponseDTO,
   TokenRequestDTO,
-  CredOfferDTO,
-  BaseCredOfferDTO,
   SiopRequestDTO,
 } from '@repo/dtos';
-import { DataSource } from 'typeorm';
 import { Serialize } from '../../middlewares/interceptors/serialize.interceptors';
-import { PresentationDefinitionV2 } from '@sphereon/pex-models';
 import { ContainersService } from '../container/container.service';
 import { v4 as uuidv4 } from 'uuid';
 import { SignatureService } from './signature.service';
